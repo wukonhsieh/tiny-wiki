@@ -13,6 +13,7 @@
 - [x] Task 11 - 前端 - 介面細節調整與組件優化 (UI Refinement & Component Optimization)
 - [x] Task 12 - 文件 - Markdown 語法全攻略教學文件 (Markdown Guide Documentation)
 - [x] Task 13 - 文件 - 專案 README 撰寫 (Project README)
+- [x] Task 14 - 前端 - 內部頁面連結跳轉支援 (Internal Wiki Linking)
 
 # Change Logs
 
@@ -169,3 +170,16 @@
 - 說明了前後端分離的啟動方式。
 - 明確標註了 `REPO_PATH` 環境變數的使用方法。
 - 加入了快捷鍵說明。
+
+## Task 14 - 前端 - 內部頁面連結跳轉支援 (Internal Wiki Linking)
+### Summary
+實作了 Markdown 內容中內部連結的攔截與跳轉邏輯，讓使用者可以透過標準 Markdown 語法在 Wiki 頁面間自由穿梭。
+### Changed Files
+- tiny-wiki/client/src/App.vue
+- tiny-wiki/client/src/components/WikiReader.vue
+- tiny-wiki/repository/Markdown-Guide.md
+### Notes
+- 在 `WikiReader.vue` 中加入了點擊監聽器，自動攔截以 `.md` 結尾的相對路徑連結。
+- 支援了相對路徑的自動拼接，確保從子目錄頁面跳轉至其他頁面時路徑正確。
+- 透過 `emit('select', path)` 通知父組件切換當前選中的檔案。
+- 在 `Markdown-Guide.md` 中加入了內部連結的使用範例。

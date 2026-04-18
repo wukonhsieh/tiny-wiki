@@ -10,7 +10,31 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['edit']);
+const emit = defineEmits(['edit', 'select']);
+
+const handleLinkClick = (event) => {
+  const target = event.target.closest('a');
+  if (!target) return;
+
+  const href = target.getAttribute('href');
+  
+  // 檢查是否為內部連結 (以 .md 結尾且非 http 開頭)
+  if (href && href.endsWith('.md') && !href.startsWith('http')) {
+    event.preventDefault();
+    // 這裡我們需要處理相對路徑
+    // 簡單起見，如果是以 ./ 開頭則移除，或者直接傳遞給父組件處理
+    // 在這個專案中，所有的 path 都是相對於 repository 的
+    let cleanPath = href.startsWith('./') ? href.substring(2) : href;
+    
+    // 如果目前的頁面在子目錄中，相對路徑需要正確拼接
+    if (!cleanPath.startsWith('/') && props.path.includes('/')) {
+      const currentDir = props.path.substring(0, props.path.lastIndexOf('/'));
+      cleanPath = `${currentDir}/${cleanPath}`;
+    }
+    
+    emit('select', cleanPath);
+  }
+};
 
 const renderedHtml = ref('');
 const pageTitle = ref('');
@@ -65,7 +89,7 @@ watch(() => props.path, (newPath) => {
       <header class="page-header">
         <h1 class="page-title">{{ pageTitle }}</h1>
       </header>
-      <div class="markdown-body" v-html="renderedHtml"></div>
+      <div class="markdown-body" v-html="renderedHtml" @click="handleLinkClick"></div>
     </div>
   </div>
 </template>

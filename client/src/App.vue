@@ -68,6 +68,7 @@ watch(selectedFilePath, () => {
           <WikiReader 
             v-else 
             :path="selectedFilePath" 
+            @select="handleSelect"
           />
         </div>
       </template>
