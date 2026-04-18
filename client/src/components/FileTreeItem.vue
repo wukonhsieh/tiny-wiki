@@ -47,6 +47,7 @@ const handleDelete = (e) => {
         'is-directory': item.type === 'directory' 
       }"
       @click="selectItem"
+      @contextmenu.prevent="e => item.type === 'directory' && $emit('contextmenu', { e, path: item.path })"
     >
       <span class="icon">
         <!-- Folder Icon -->
@@ -81,6 +82,7 @@ const handleDelete = (e) => {
         :selected-path="selectedPath"
         @select="(path) => $emit('select', path)"
         @delete="(path) => $emit('delete', path)"
+        @contextmenu="(payload) => $emit('contextmenu', payload)"
       />
     </div>
   </div>

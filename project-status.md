@@ -5,8 +5,8 @@
 - [x] Task 3 - 前端 - Markdown 標題自動擷取
 - [x] Task 4 - 前端 - 頂部 Preview/Edit Toggle 切換
 - [x] Task 5 - 前端 - 未儲存提示 (Notification Bar) 與快捷鍵
-- [ ] Task 6 - 前端 - 側邊欄右鍵選單 (Context Menu)
-- [ ] Task 7 - 前端 - 整合右鍵新增 API
+- [x] Task 6 - 前端 - 側邊欄右鍵選單 (Context Menu)
+- [x] Task 7 - 前端 - 整合右鍵新增 API
 
 # Change Logs
 
@@ -66,3 +66,27 @@
 - 使用了 Vue 的 `<transition>` 實作通知列的平滑滑入效果。
 - 快捷鍵同時支援 `Ctrl+S` 與 Mac 的 `Cmd+S`。
 - 存檔成功後自動重設 `isDirty` 狀態並隱藏通知列。
+
+## Task 6 - 前端 - 側邊欄右鍵選單 (Context Menu)
+### Summary
+實作了側邊欄目錄的右鍵選單功能，提供 "New Page" 與 "New Folder" 的快速操作入口。
+### Changed Files
+- tiny-wiki/client/src/components/ContextMenu.vue
+- tiny-wiki/client/src/components/FileTreeItem.vue
+- tiny-wiki/client/src/components/Sidebar.vue
+- tiny-wiki/scratch/check_task_6_iter2.sh
+### Notes
+- 目錄項目支援 `contextmenu` 事件監聽。
+- 實作了全域點擊自動關閉選單的邏輯。
+- 選單採用現代化的懸浮設計，具備磨砂質感與微影效果。
+
+## Task 7 - 前端 - 整合右鍵新增 API
+### Summary
+將側邊欄右鍵選單的操作與後端 API 正式整合，支援在特定目錄下建立新頁面或資料夾。
+### Changed Files
+- tiny-wiki/client/src/components/Sidebar.vue
+- tiny-wiki/scratch/check_task_7_iter2.sh
+### Notes
+- 重構了 `createNewFile` 與 `createNewFolder` 以支援 `targetDir` 參數。
+- 修正了路徑拼接邏輯，確保在子目錄建立檔案時路徑正確。
+- 整合了 `handleContextMenuAction` 以觸發對應的 API 請求並自動重新整理檔案樹。

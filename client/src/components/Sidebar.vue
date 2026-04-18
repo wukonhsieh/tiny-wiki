@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import FileTreeItem from './FileTreeItem.vue';
+import ContextMenu from './ContextMenu.vue';
 
 defineProps({
   selectedPath: {
@@ -15,6 +16,32 @@ const treeData = ref(null);
 const loading = ref(true);
 const error = ref(null);
 
+// Context Menu State
+const contextMenu = ref({
+  show: false,
+  x: 0,
+  y: 0,
+  path: ''
+});
+
+const handleContextMenu = ({ e, path }) => {
+  contextMenu.value = {
+    show: true,
+    x: e.clientX,
+    y: e.clientY,
+    path
+  };
+};
+
+const handleContextMenuAction = ({ type, path }) => {
+  if (type === 'new-page') {
+    createNewFile(path);
+  } else if (type === 'new-folder') {
+    createNewFolder(path);
+  }
+  contextMenu.value.show = false;
+};
+
 const fetchTree = async () => {
   loading.value = true;
   try {
@@ -28,35 +55,40 @@ const fetchTree = async () => {
   }
 };
 
-const createNewFile = async () => {
+const createNewFile = async (targetDir = '') => {
   const name = prompt('Enter new file name (e.g., page.md):');
   if (!name) return;
   
-  const path = name.endsWith('.md') ? name : `${name}.md`;
+  const fileName = name.endsWith('.md') ? name : `${name}.md`;
+  const prefix = (targetDir && targetDir !== '/') ? `${targetDir}/` : '';
+  const fullPath = `${prefix}${fileName}`;
   
   try {
     const res = await fetch('/api/file', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path, content: `# ${name}\n\nStart writing here...` })
+      body: JSON.stringify({ path: fullPath, content: `# ${name}\n\nStart writing here...` })
     });
     if (!res.ok) throw new Error('Failed to create file');
     await fetchTree();
-    emit('select', path);
+    emit('select', fullPath);
   } catch (err) {
     alert(err.message);
   }
 };
 
-const createNewFolder = async () => {
+const createNewFolder = async (targetDir = '') => {
   const name = prompt('Enter new folder name:');
   if (!name) return;
+  
+  const prefix = (targetDir && targetDir !== '/') ? `${targetDir}/` : '';
+  const fullPath = `${prefix}${name}`;
   
   try {
     const res = await fetch('/api/directory', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path: name })
+      body: JSON.stringify({ path: fullPath })
     });
     if (!res.ok) throw new Error('Failed to create folder');
     await fetchTree();
@@ -108,9 +140,19 @@ onMounted(fetchTree);
           :selected-path="selectedPath"
           @select="(path) => $emit('select', path)"
           @delete="handleDelete"
+          @contextmenu="handleContextMenu"
         />
       </div>
     </div>
+    
+    <ContextMenu 
+      v-if="contextMenu.show" 
+      :x="contextMenu.x" 
+      :y="contextMenu.y" 
+      :path="contextMenu.path"
+      @close="contextMenu.show = false"
+      @action="handleContextMenuAction"
+    />
   </aside>
 </template>
 
