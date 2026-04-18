@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import Sidebar from './components/Sidebar.vue';
+import WikiReader from './components/WikiReader.vue';
 
 const selectedFilePath = ref('');
 
@@ -13,11 +14,12 @@ const handleSelect = (path) => {
   <div class="app-layout">
     <Sidebar :selected-path="selectedFilePath" @select="handleSelect" />
     <main class="main-content">
-      <div v-if="selectedFilePath" class="content-header">
-        <h1>Selected: {{ selectedFilePath }}</h1>
-      </div>
+      <WikiReader v-if="selectedFilePath" :path="selectedFilePath" />
       <div v-else class="empty-state">
-        <p>Select a wiki page to start reading</p>
+        <div class="empty-msg">
+          <span class="empty-icon">📖</span>
+          <p>Select a wiki page to start reading</p>
+        </div>
       </div>
     </main>
   </div>
@@ -30,6 +32,7 @@ body {
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: #fff;
+  color: #2c3e50;
 }
 
 .app-layout {
@@ -41,15 +44,8 @@ body {
 
 .main-content {
   flex: 1;
-  padding: 40px;
   overflow-y: auto;
-}
-
-.content-header h1 {
-  font-size: 1.5rem;
-  color: #2c3e50;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 10px;
+  background-color: #fff;
 }
 
 .empty-state {
@@ -58,6 +54,21 @@ body {
   align-items: center;
   justify-content: center;
   color: #999;
+}
+
+.empty-msg {
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.empty-state p {
   font-size: 1.2rem;
+  margin: 0;
 }
 </style>
