@@ -36,10 +36,39 @@ const handleLinkClick = (event) => {
   }
 };
 
+import yaml from 'js-yaml';
+
 const renderedHtml = ref('');
 const pageTitle = ref('');
 const loading = ref(false);
 const error = ref(null);
+const frontmatter = ref({});
+const rawBodyContent = ref('');
+
+const removeTag = async (key, index) => {
+  if (!frontmatter.value[key] || !Array.isArray(frontmatter.value[key])) return;
+  
+  frontmatter.value[key].splice(index, 1);
+  
+  let fmString = '';
+  if (Object.keys(frontmatter.value).length > 0) {
+    fmString = '---\n' + yaml.dump(frontmatter.value) + '---\n';
+  }
+  
+  const fullContent = fmString + rawBodyContent.value;
+  
+  try {
+    const res = await fetch('/api/file', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: props.path, content: fullContent })
+    });
+    if (!res.ok) throw new Error('Failed to update frontmatter');
+  } catch (err) {
+    console.error(err);
+    alert('Failed to save frontmatter tag removal');
+  }
+};
 
 const fetchFileContent = async (filePath) => {
   if (!filePath) return;
@@ -54,15 +83,41 @@ const fetchFileContent = async (filePath) => {
     const data = await response.json();
     const rawContent = data.content || '';
     
-    // 擷取第一行作為標題
-    const lines = rawContent.split('\n');
-    const firstLine = lines[0] || '';
+    let bodyContentStr = rawContent;
+    let frontmatterStr = '';
     
-    // 移除 Markdown H1 前綴 # 
-    pageTitle.value = firstLine.replace(/^#\s+/, '') || filePath.split('/').pop();
+    const match = rawContent.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+    if (match) {
+      frontmatterStr = match[1];
+      bodyContentStr = rawContent.substring(match[0].length);
+    }
     
-    // 其餘部分作為內文
-    const bodyContent = lines.slice(1).join('\n');
+    rawBodyContent.value = bodyContentStr;
+    
+    if (frontmatterStr) {
+      try {
+        frontmatter.value = yaml.load(frontmatterStr) || {};
+      } catch (e) {
+        console.error("Failed to parse YAML frontmatter", e);
+        frontmatter.value = {};
+      }
+    } else {
+      frontmatter.value = {};
+    }
+    
+    const lines = bodyContentStr.split('\n');
+    let titleLine = '';
+    
+    let firstNonEmptyIndex = lines.findIndex(line => line.trim().length > 0);
+    if (firstNonEmptyIndex !== -1) {
+      titleLine = lines[firstNonEmptyIndex];
+      pageTitle.value = titleLine.replace(/^#+\s+/, '') || filePath.split('/').pop();
+      lines.splice(firstNonEmptyIndex, 1);
+    } else {
+      pageTitle.value = filePath.split('/').pop();
+    }
+    
+    const bodyContent = lines.join('\n');
     renderedHtml.value = renderMarkdown(bodyContent);
   } catch (err) {
     error.value = err.message;
@@ -71,6 +126,7 @@ const fetchFileContent = async (filePath) => {
     loading.value = false;
   }
 };
+
 
 watch(() => props.path, (newPath) => {
   fetchFileContent(newPath);
@@ -89,6 +145,30 @@ watch(() => props.path, (newPath) => {
       <header class="page-header">
         <h1 class="page-title">{{ pageTitle }}</h1>
       </header>
+      
+      <div v-if="Object.keys(frontmatter).length > 0" class="frontmatter-table-container">
+        <table class="frontmatter-table">
+          <tbody>
+            <tr v-for="(value, key) in frontmatter" :key="key">
+              <th class="fm-key">{{ key }}</th>
+              <td class="fm-value">
+                <template v-if="Array.isArray(value)">
+                  <span class="fm-tag" v-for="(item, idx) in value" :key="idx">
+                    {{ item }}
+                    <span class="fm-tag-remove" @click="removeTag(key, idx)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </span>
+                  </span>
+                </template>
+                <template v-else>
+                  {{ value }}
+                </template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <div class="markdown-body" v-html="renderedHtml" @click="handleLinkClick"></div>
     </div>
   </div>
@@ -118,6 +198,53 @@ watch(() => props.path, (newPath) => {
   font-family: var(--heading);
   font-weight: 300;
   letter-spacing: -0.02em;
+}
+
+.frontmatter-table-container {
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+.frontmatter-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.frontmatter-table th, .frontmatter-table td {
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  text-align: left;
+}
+.fm-key {
+  width: 150px;
+  background-color: var(--code-bg);
+  font-weight: 500;
+  color: var(--text-h);
+}
+.fm-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--accent-bg);
+  color: var(--text-h);
+  padding: 4px 10px;
+  border-radius: 12px;
+  margin-right: 8px;
+  font-size: 0.85rem;
+  transition: background-color 0.2s;
+}
+.fm-tag:hover {
+  background-color: var(--accent);
+}
+.fm-tag-remove {
+  margin-left: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.fm-tag:hover .fm-tag-remove {
+  opacity: 1;
 }
 
 .state-msg {

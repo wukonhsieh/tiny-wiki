@@ -15,6 +15,7 @@
 - [x] Task 13 - 文件 - 專案 README 撰寫 (Project README)
 - [x] Task 14 - 前端 - 內部頁面連結跳轉支援 (Internal Wiki Linking)
 - [x] Task 15 - 前端 - 側邊欄 UX 優化與對齊修正 (Sidebar UX & Alignment Fix)
+- [x] Task 16 - 前端 - Frontmatter 解析與表格顯示 (Frontmatter Parsing and Display)
 
 # Change Logs
 
@@ -195,3 +196,15 @@
 - **對齊修正**：將 `.tree-container` 與 `.sidebar-header` 的 `text-align` 統一設定為 `left`，提升閱讀視覺平衡。
 - **全域右鍵支援**：在側邊欄空白區域 (`.sidebar-content`) 加入右鍵監聽，允許在根目錄 (Root) 下快速新增檔案/資料夾。修正了事件冒泡導致選單被立即關閉的問題。
 - **資料夾右鍵優化**：重構了 `FileTreeItem` 的右鍵觸發邏輯，確保事件正確冒泡並攜帶路徑資訊，解決了資料夾選單無法顯示的問題。
+
+## Task 16 - 前端 - Frontmatter 解析與表格顯示 (Frontmatter Parsing and Display)
+### Summary
+實作了 Markdown 檔案的 YAML Frontmatter 解析功能，並將解析結果以表格型態優雅地顯示在標題下方。支援以標籤（Tag）元件呈現陣列格式的資料，並提供互動式的刪除功能。
+### Changed Files
+- tiny-wiki/client/package.json
+- tiny-wiki/client/src/components/WikiReader.vue
+### Notes
+- **解析邏輯**：整合了 `js-yaml` 套件，在渲染 Markdown 前先將 `---` 包圍的 YAML 區塊抽離解析，確保本文不會受到影響。標題自動擷取邏輯也已更新，現在會正確避開 Frontmatter，抓取後續的第一行。
+- **表格顯示**：利用 `v-if` 與 `v-for` 動態生成表格，並套用與大地色系相符的樣式設計 (`.frontmatter-table`)。
+- **互動標籤 (Tags)**：針對陣列格式的數值（如 `tags: [...]`），改用膠囊狀的 `.fm-tag` 元件顯示。
+- **刪除功能**：在標籤右側實作了隱藏式的 `x` 按鈕（Hover 時顯示），點擊後會即時從 Frontmatter 陣列中移除該項目，並自動呼叫 `POST /api/file` 將變更寫回後端 Markdown 檔案。

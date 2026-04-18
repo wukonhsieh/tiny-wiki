@@ -18,7 +18,15 @@ const loading = ref(true);
 const saving = ref(false);
 const error = ref(null);
 
-const renderedHtml = computed(() => renderMarkdown(rawContent.value));
+const renderedHtml = computed(() => {
+  let bodyStr = rawContent.value;
+  const match = bodyStr.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+  if (match) {
+    bodyStr = bodyStr.substring(match[0].length);
+  }
+  
+  return renderMarkdown(bodyStr);
+});
 const isDirty = computed(() => rawContent.value !== originalContent.value);
 
 const fetchContent = async () => {
