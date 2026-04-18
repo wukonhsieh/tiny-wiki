@@ -1,44 +1,63 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
+import Sidebar from './components/Sidebar.vue';
 
-const message = ref('Loading...');
+const selectedFilePath = ref('');
 
-onMounted(async () => {
-  try {
-    const response = await fetch('/api/hello');
-    const data = await response.json();
-    message.value = data.message;
-  } catch (error) {
-    message.value = 'Error fetching from server: ' + error.message;
-  }
-});
+const handleSelect = (path) => {
+  selectedFilePath.value = path;
+};
 </script>
 
 <template>
-  <div class="test-container">
-    <h1>Tiny Wiki Test</h1>
-    <p>Server Response: <strong>{{ message }}</strong></p>
+  <div class="app-layout">
+    <Sidebar :selected-path="selectedFilePath" @select="handleSelect" />
+    <main class="main-content">
+      <div v-if="selectedFilePath" class="content-header">
+        <h1>Selected: {{ selectedFilePath }}</h1>
+      </div>
+      <div v-else class="empty-state">
+        <p>Select a wiki page to start reading</p>
+      </div>
+    </main>
   </div>
 </template>
 
-<style scoped>
-.test-container {
+<style>
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #fff;
+}
+
+.app-layout {
   display: flex;
-  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.content-header h1 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.empty-state {
+  display: flex;
+  height: 100%;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  font-family: sans-serif;
-  background-color: #f0f2f5;
-}
-h1 {
-  color: #2c3e50;
-}
-p {
+  color: #999;
   font-size: 1.2rem;
-  color: #34495e;
-}
-strong {
-  color: #42b983;
 }
 </style>
