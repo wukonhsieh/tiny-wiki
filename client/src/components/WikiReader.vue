@@ -323,5 +323,14 @@ watch(() => props.path, (newPath) => {
   font-size: 85%;
   background-color: var(--accent-bg);
   border-radius: 3px;
+  font-family: var(--mono);
 }
+
+:deep(.markdown-body pre code) {
+  display: block;
+  padding: 0;
+  background-color: transparent;
+  font-size: 100%;
+}
+
 </style>

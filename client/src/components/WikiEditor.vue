@@ -315,5 +315,22 @@ textarea {
   padding: 16px;
   background-color: var(--code-bg);
   border-radius: 6px;
+  overflow: auto;
 }
+
+:deep(.markdown-body code) {
+  padding: 0.2em 0.4em;
+  background-color: var(--accent-bg);
+  border-radius: 3px;
+  font-size: 85%;
+  font-family: var(--mono);
+}
+
+:deep(.markdown-body pre code) {
+  display: block;
+  padding: 0;
+  background-color: transparent;
+  font-size: 100%;
+}
+
 </style>

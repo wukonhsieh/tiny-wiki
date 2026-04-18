@@ -20,6 +20,7 @@
 - [x] Task 18 - 前端 - 編輯器圖示視覺統一化 (Editor Icon Visual Unification)
 - [x] Task 19 - 前端 - 側邊欄 UI 精簡與手寫風格品牌化 (Sidebar Cleanup & Handwriting Branding)
 - [x] Task 20 - 核心 - Obsidian 風格 Wikilink 支援 (Obsidian Wikilink Support)
+- [x] Task 21 - 前端 - 程式碼區塊佈局修復 (Code Block Layout Fix)
 
 # Change Logs
 
@@ -257,3 +258,14 @@
 - **渲染優化**：更新了 `renderMarkdown` 邏輯，在進入標記語言解析前先將 Wikilinks 轉譯為帶有 `data-wikilink` 屬性的特殊 HTML 連結。
 - **異步導航**：在 `WikiReader` 中攔截 Wikilink 點擊事件，透過後端解析 API 取得真實路徑後進行頁面切換。
 - **視覺區分**：為 Wikilink 設計了專屬的虛線底線樣式，與一般內部連結做視覺區分。
+
+## Task 21 - 前端 - 程式碼區塊佈局修復 (Code Block Layout Fix)
+### Summary
+修正了 Markdown 程式碼區塊（Code Block）在特定情況下內容顯示混亂的問題，並統一了行內程式碼與區塊程式碼的視覺樣式。
+### Changed Files
+- tiny-wiki/client/src/components/WikiReader.vue
+- tiny-wiki/client/src/components/WikiEditor.vue
+### Notes
+- **佈局修正**：針對 `pre code` 強制設定 `display: block`，解決了內容垂直堆疊或水平溢出的異常行為。
+- **樣式隔離**：將 `pre code`（區塊）與獨立 `code`（行內）的樣式解耦，確保行內程式碼不會因 `display: block` 而強制換行。
+- **視覺一致性**：同步了閱讀器與編輯器預覽窗格的程式碼背景色與字體定義。
