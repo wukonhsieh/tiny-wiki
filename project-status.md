@@ -7,6 +7,7 @@
 - [x] Task 5 - 前端 - 未儲存提示 (Notification Bar) 與快捷鍵
 - [x] Task 6 - 前端 - 側邊欄右鍵選單 (Context Menu)
 - [x] Task 7 - 前端 - 整合右鍵新增 API
+- [x] Task 8 - 前端 - 滿版佈局優化 (Full-screen Refinement)
 
 # Change Logs
 
@@ -90,3 +91,14 @@
 - 重構了 `createNewFile` 與 `createNewFolder` 以支援 `targetDir` 參數。
 - 修正了路徑拼接邏輯，確保在子目錄建立檔案時路徑正確。
 - 整合了 `handleContextMenuAction` 以觸發對應的 API 請求並自動重新整理檔案樹。
+
+## Task 8 - 前端 - 滿版佈局優化 (Full-screen Refinement)
+### Summary
+修正了 `#app` 與 `.app-layout` 的寬度衝突，將應用改為 100% 滿版設計，解決了畫面偏向一側的問題並移除了多餘的邊框。
+### Changed Files
+- tiny-wiki/client/src/App.vue
+- tiny-wiki/client/src/style.css
+### Notes
+- 將 `#app` 的 `width: 1126px` 改為 `100%`。
+- 將 `.app-layout` 的 `width: 100vw` 改為 `100%` 以避免潛在的滾動條問題。
+- 移除了 `#app` 的側邊邊框 (`border-inline`)。
