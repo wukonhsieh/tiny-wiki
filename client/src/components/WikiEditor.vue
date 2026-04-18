@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { renderMarkdown } from '../utils/markdown';
 import 'highlight.js/styles/github.css';
 
@@ -10,7 +10,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['save', 'cancel']);
+const emit = defineEmits(['save', 'cancel', 'dirtyChange']);
 
 const rawContent = ref('');
 const originalContent = ref('');
@@ -28,6 +28,11 @@ const renderedHtml = computed(() => {
   return renderMarkdown(bodyStr);
 });
 const isDirty = computed(() => rawContent.value !== originalContent.value);
+
+watch(isDirty, (val) => {
+  emit('dirtyChange', val);
+}, { immediate: true });
+
 
 const fetchContent = async () => {
   loading.value = true;

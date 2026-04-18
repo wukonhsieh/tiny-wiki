@@ -16,6 +16,7 @@
 - [x] Task 14 - 前端 - 內部頁面連結跳轉支援 (Internal Wiki Linking)
 - [x] Task 15 - 前端 - 側邊欄 UX 優化與對齊修正 (Sidebar UX & Alignment Fix)
 - [x] Task 16 - 前端 - Frontmatter 解析與表格顯示 (Frontmatter Parsing and Display)
+- [x] Task 17 - 前端 - 導覽流程優化與未修改跳轉 (Navigation UX Improvement)
 
 # Change Logs
 
@@ -208,3 +209,14 @@
 - **表格顯示**：利用 `v-if` 與 `v-for` 動態生成表格，並套用與大地色系相符的樣式設計 (`.frontmatter-table`)。
 - **互動標籤 (Tags)**：針對陣列格式的數值（如 `tags: [...]`），改用膠囊狀的 `.fm-tag` 元件顯示。
 - **刪除功能**：在標籤右側實作了隱藏式的 `x` 按鈕（Hover 時顯示），點擊後會即時從 Frontmatter 陣列中移除該項目，並自動呼叫 `POST /api/file` 將變更寫回後端 Markdown 檔案。
+
+## Task 17 - 前端 - 導覽流程優化與未修改跳轉 (Navigation UX Improvement)
+### Summary
+優化了在編輯模式下的導覽邏輯。現在當檔案內容未發生實質變動時，點擊側邊欄切換頁面不再會跳出確認視窗，提升了瀏覽的流暢度。
+### Changed Files
+- tiny-wiki/client/src/App.vue
+- tiny-wiki/client/src/components/WikiEditor.vue
+### Notes
+- **狀態同步**：在 `WikiEditor.vue` 中透過 `dirtyChange` 事件將編輯器的 `isDirty` 狀態同步至父組件 `App.vue`。
+- **條件跳轉**：修改了 `App.vue` 的 `handleSelect` 邏輯，僅在 `isEditing` 且 `isDirty` 同時為真時才觸發 `confirm` 視窗。
+- **重設機制**：在成功切換頁面後，會自動重置 `isDirty` 狀態。

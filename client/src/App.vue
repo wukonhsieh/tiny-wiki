@@ -6,16 +6,19 @@ import WikiEditor from './components/WikiEditor.vue';
 
 const selectedFilePath = ref('');
 const isEditing = ref(false);
+const isDirty = ref(false);
 
 const handleSelect = (path) => {
-  if (isEditing.value) {
+  if (isEditing.value && isDirty.value) {
     if (!confirm('You have unsaved changes. Discard and switch page?')) {
       return;
     }
   }
   selectedFilePath.value = path;
   isEditing.value = false;
+  isDirty.value = false;
 };
+
 
 const startEdit = () => {
   isEditing.value = true;
@@ -64,6 +67,7 @@ watch(selectedFilePath, () => {
             :path="selectedFilePath" 
             @save="handleSave"
             @cancel="handleCancel"
+            @dirty-change="val => isDirty = val"
           />
           <WikiReader 
             v-else 
