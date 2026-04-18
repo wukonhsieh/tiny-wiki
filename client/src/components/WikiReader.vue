@@ -12,21 +12,35 @@ const props = defineProps({
 
 const emit = defineEmits(['edit', 'select']);
 
-const handleLinkClick = (event) => {
+const handleLinkClick = async (event) => {
   const target = event.target.closest('a');
   if (!target) return;
 
   const href = target.getAttribute('href');
+  const isWikilink = target.dataset.wikilink === 'true';
+
+  if (isWikilink) {
+    event.preventDefault();
+    try {
+      const res = await fetch(`/api/resolve?name=${encodeURIComponent(href)}`);
+      if (res.ok) {
+        const data = await res.json();
+        emit('select', data.path);
+      } else {
+        console.warn('Wikilink resolution failed:', href);
+        // 如果找不到，可以考慮給個視覺提示，但目前先不跳 alert 以免干擾
+      }
+    } catch (err) {
+      console.error('Failed to resolve wikilink', err);
+    }
+    return;
+  }
   
   // 檢查是否為內部連結 (以 .md 結尾且非 http 開頭)
   if (href && href.endsWith('.md') && !href.startsWith('http')) {
     event.preventDefault();
-    // 這裡我們需要處理相對路徑
-    // 簡單起見，如果是以 ./ 開頭則移除，或者直接傳遞給父組件處理
-    // 在這個專案中，所有的 path 都是相對於 repository 的
     let cleanPath = href.startsWith('./') ? href.substring(2) : href;
     
-    // 如果目前的頁面在子目錄中，相對路徑需要正確拼接
     if (!cleanPath.startsWith('/') && props.path.includes('/')) {
       const currentDir = props.path.substring(0, props.path.lastIndexOf('/'));
       cleanPath = `${currentDir}/${cleanPath}`;
@@ -234,6 +248,19 @@ watch(() => props.path, (newPath) => {
 .fm-tag:hover {
   background-color: var(--accent);
 }
+
+:deep(.wikilink) {
+  color: #a67c52; /* Earthy brown */
+  text-decoration: none;
+  border-bottom: 1px dashed #a67c52;
+  transition: all 0.2s;
+}
+
+:deep(.wikilink):hover {
+  background-color: var(--accent-bg);
+  border-bottom-style: solid;
+}
+
 .fm-tag-remove {
   margin-left: 6px;
   cursor: pointer;

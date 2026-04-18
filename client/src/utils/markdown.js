@@ -2,6 +2,7 @@ import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 
 const md = new MarkdownIt({
+  html: true,
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
@@ -15,5 +16,17 @@ const md = new MarkdownIt({
 });
 
 export function renderMarkdown(content) {
-  return md.render(content || '');
+  if (!content) return '';
+  
+  // Handle Wikilinks: [[path|alias]] or [[path]]
+  // 我們先進行 Wikilink 的轉換，再交給 markdown-it
+  // 這樣 [[...]] 就不會被 markdown-it 誤判為其他語法
+  const wikilinkRegex = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
+  const processedContent = content.replace(wikilinkRegex, (match, target, alias) => {
+    const label = alias || target;
+    // 使用 data-wikilink 標記，方便在 WikiReader 中攔截處理
+    return `<a href="${target}" class="wikilink" data-wikilink="true">${label}</a>`;
+  });
+
+  return md.render(processedContent);
 }

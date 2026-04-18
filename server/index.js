@@ -133,6 +133,54 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: "hello from server" });
 });
 
+// GET /api/resolve - 搜尋 Wikilink 對應的路徑
+app.get('/api/resolve', async (req, res) => {
+  const { name } = req.query;
+  if (!name) return res.status(400).json({ error: "Missing name" });
+
+  try {
+    // 如果包含 '/'，直接嘗試解析路徑
+    if (name.includes('/')) {
+      const targetPath = name.endsWith('.md') ? name : `${name}.md`;
+      const fullPath = resolveSafePath(targetPath);
+      if (fullPath) {
+        try {
+          await fs.access(fullPath);
+          return res.json({ path: targetPath });
+        } catch (e) {
+          // 繼續往下走搜尋邏輯，或者報錯
+        }
+      }
+    }
+
+    // 遞迴搜尋符合檔名的第一個檔案
+    async function findFile(dir) {
+      const files = await fs.readdir(dir);
+      for (const file of files) {
+        if (file.startsWith('.') || file === 'node_modules') continue;
+        const fullPath = path.join(dir, file);
+        const stats = await fs.stat(fullPath);
+        if (stats.isDirectory()) {
+          const found = await findFile(fullPath);
+          if (found) return found;
+        } else if (file === name || file === `${name}.md`) {
+          return path.relative(REPO_PATH, fullPath);
+        }
+      }
+      return null;
+    }
+
+    const foundPath = await findFile(REPO_PATH);
+    if (foundPath) {
+      res.json({ path: foundPath });
+    } else {
+      res.status(404).json({ error: "File not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

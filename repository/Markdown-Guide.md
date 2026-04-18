@@ -45,8 +45,14 @@
 ## 4. 連結與圖片 (Links & Images)
 
 *   **連結**：[點擊前往 Google](https://www.google.com)
+*   **內部連結**：[前往 Note 1](note1.md)
+*   **Obsidian Wikilinks**：
+    *   `[[note1]]` -> [[note1]] (自動搜尋檔名)
+    *   `[[folder1/note2]]` -> [[folder1/note2]] (指定路徑)
+    *   `[[note1|我的筆記]]` -> [[note1|我的筆記]] (自定義別名)
 *   **圖片**：
     ![設計感圖片](https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=300&q=80)
+
 
 ---
 

@@ -19,6 +19,7 @@
 - [x] Task 17 - 前端 - 導覽流程優化與未修改跳轉 (Navigation UX Improvement)
 - [x] Task 18 - 前端 - 編輯器圖示視覺統一化 (Editor Icon Visual Unification)
 - [x] Task 19 - 前端 - 側邊欄 UI 精簡與手寫風格品牌化 (Sidebar Cleanup & Handwriting Branding)
+- [x] Task 20 - 核心 - Obsidian 風格 Wikilink 支援 (Obsidian Wikilink Support)
 
 # Change Logs
 
@@ -242,3 +243,17 @@
 - **功能簡化**：移除了 `.sidebar-actions`，現在檔案庫操作完全由右鍵選單 (Context Menu) 提供。
 - **品牌字體**：引入了 Google Fonts 的 `Dancing Script` 字體，並應用於側邊欄大標題。
 - **視覺平衡**：將側邊欄標題改為居中對齊，並增加了上下間距 (Padding)，使整體視覺感更具呼吸感。
+
+## Task 20 - 核心 - Obsidian 風格 Wikilink 支援 (Obsidian Wikilink Support)
+### Summary
+實作了對 Obsidian 風格雙中括號連結 `[[...]]` 的支援。包含路徑解析、別名支援以及全域檔名搜尋功能，大幅提升了筆記間的關聯便利性。
+### Changed Files
+- tiny-wiki/server/index.js
+- tiny-wiki/client/src/utils/markdown.js
+- tiny-wiki/client/src/components/WikiReader.vue
+- tiny-wiki/repository/Markdown-Guide.md
+### Notes
+- **後端解析**：新增了 `/api/resolve` 接口。若路徑不含 `/`，則會自動遞迴搜尋 Repository 下第一個相符的 `.md` 檔案；若含 `/` 則優先進行相對/絕對路徑匹配。
+- **渲染優化**：更新了 `renderMarkdown` 邏輯，在進入標記語言解析前先將 Wikilinks 轉譯為帶有 `data-wikilink` 屬性的特殊 HTML 連結。
+- **異步導航**：在 `WikiReader` 中攔截 Wikilink 點擊事件，透過後端解析 API 取得真實路徑後進行頁面切換。
+- **視覺區分**：為 Wikilink 設計了專屬的虛線底線樣式，與一般內部連結做視覺區分。
