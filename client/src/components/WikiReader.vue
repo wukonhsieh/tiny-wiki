@@ -13,6 +13,7 @@ const props = defineProps({
 const emit = defineEmits(['edit']);
 
 const renderedHtml = ref('');
+const pageTitle = ref('');
 const loading = ref(false);
 const error = ref(null);
 
@@ -27,7 +28,18 @@ const fetchFileContent = async (filePath) => {
     if (!response.ok) throw new Error('File not found or server error');
     
     const data = await response.json();
-    renderedHtml.value = renderMarkdown(data.content);
+    const rawContent = data.content || '';
+    
+    // 擷取第一行作為標題
+    const lines = rawContent.split('\n');
+    const firstLine = lines[0] || '';
+    
+    // 移除 Markdown H1 前綴 # 
+    pageTitle.value = firstLine.replace(/^#\s+/, '') || filePath.split('/').pop();
+    
+    // 其餘部分作為內文
+    const bodyContent = lines.slice(1).join('\n');
+    renderedHtml.value = renderMarkdown(bodyContent);
   } catch (err) {
     error.value = err.message;
     renderedHtml.value = '';
@@ -45,14 +57,25 @@ watch(() => props.path, (newPath) => {
 <template>
   <div class="wiki-reader">
     <div class="reader-toolbar">
-      <button class="btn-edit" @click="$emit('edit')">✏️ Edit</button>
+      <button class="btn-edit" @click="$emit('edit')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2">
+          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+        </svg>
+        Edit
+      </button>
     </div>
+    
     <div v-if="loading" class="state-msg">Loading content...</div>
     <div v-else-if="error" class="state-msg error">
       <h3>Error</h3>
       <p>{{ error }}</p>
     </div>
-    <div v-else class="markdown-body" v-html="renderedHtml"></div>
+    <div v-else class="content-wrapper">
+      <header class="page-header">
+        <h1 class="page-title">{{ pageTitle }}</h1>
+      </header>
+      <div class="markdown-body" v-html="renderedHtml"></div>
+    </div>
   </div>
 </template>
 
@@ -73,24 +96,41 @@ watch(() => props.path, (newPath) => {
 }
 
 .btn-edit {
-  padding: 8px 16px;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
 }
 
 .btn-edit:hover {
-  background: #f0f0f0;
+  background-color: #0056b3;
+}
+
+.page-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 2.8rem;
+  color: #1a1d21;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .state-msg {
   text-align: center;
   padding: 50px;
-  color: #666;
+  color: #6c757d;
 }
 
 .error {

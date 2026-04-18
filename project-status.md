@@ -2,7 +2,7 @@
 
 - [x] Task 1 - 前端 - 扁平化圖示替換與 Sidebar 清理
 - [x] Task 2 - 前端 - 響應式佈局 (Responsive Layout)
-- [ ] Task 3 - 前端 - Markdown 標題自動擷取
+- [x] Task 3 - 前端 - Markdown 標題自動擷取
 - [ ] Task 4 - 前端 - 頂部 Preview/Edit Toggle 切換
 - [ ] Task 5 - 前端 - 未儲存提示 (Notification Bar) 與快捷鍵
 - [ ] Task 6 - 前端 - 側邊欄右鍵選單 (Context Menu)
@@ -32,3 +32,14 @@
 ### Notes
 - 引入了 `min-width: 0` 確保 Flex 佈局穩定。
 - 實作了側邊欄檔名的自動截斷 (Ellipsis)。
+
+## Task 3 - 前端 - Markdown 標題自動擷取
+### Summary
+實作了從 Markdown 第一行自動擷取標題的邏輯，並在 `WikiReader` 頂部獨立顯示，提升了頁面的閱讀質感。
+### Changed Files
+- tiny-wiki/client/src/components/WikiReader.vue
+- tiny-wiki/scratch/check_task_3_iter2.sh
+### Notes
+- 自動移除第一行的 `# ` 前綴。
+- 採用了更大的字體與細緻的邊框設計作為頁面 Header。
+- 優化了 Edit 按鈕的樣式，改為 Feather 圖示與藍色主題。
