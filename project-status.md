@@ -12,6 +12,7 @@
 - [x] Task 10 - 前端 - 頂級設計感字型整合 (Premium Typography Integration)
 - [x] Task 11 - 前端 - 介面細節調整與組件優化 (UI Refinement & Component Optimization)
 - [x] Task 12 - 文件 - Markdown 語法全攻略教學文件 (Markdown Guide Documentation)
+- [x] Task 13 - 文件 - 專案 README 撰寫 (Project README)
 
 # Change Logs
 
@@ -158,3 +159,13 @@
 - 文件包含了 H1-H5 標題範例。
 - 展示了 GitHub 風格的任務列表 (Task Lists) 與代碼語法高亮。
 - 提供了表格與圖片的排版範例。
+
+## Task 13 - 文件 - 專案 README 撰寫 (Project README)
+### Summary
+撰寫了專案的 `README.md`，詳細說明了 Tiny Wiki 的特色、安裝步驟、啟動流程，以及如何透過環境變數指定自定義的 Repository 路徑。
+### Changed Files
+- tiny-wiki/README.md
+### Notes
+- 說明了前後端分離的啟動方式。
+- 明確標註了 `REPO_PATH` 環境變數的使用方法。
+- 加入了快捷鍵說明。
