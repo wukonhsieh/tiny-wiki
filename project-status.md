@@ -21,6 +21,7 @@
 - [x] Task 19 - 前端 - 側邊欄 UI 精簡與手寫風格品牌化 (Sidebar Cleanup & Handwriting Branding)
 - [x] Task 20 - 核心 - Obsidian 風格 Wikilink 支援 (Obsidian Wikilink Support)
 - [x] Task 21 - 前端 - 程式碼區塊佈局修復 (Code Block Layout Fix)
+- [x] Task 22 - 路由 - 支援 URL 路徑導航與 404 處理 (URL Routing & 404 Handling)
 
 # Change Logs
 
@@ -269,3 +270,19 @@
 - **佈局修正**：針對 `pre code` 強制設定 `display: block`，解決了內容垂直堆疊或水平溢出的異常行為。
 - **樣式隔離**：將 `pre code`（區塊）與獨立 `code`（行內）的樣式解耦，確保行內程式碼不會因 `display: block` 而強制換行。
 - **視覺一致性**：同步了閱讀器與編輯器預覽窗格的程式碼背景色與字體定義。
+
+## Task 22 - 路由 - 支援 URL 路徑導航與 404 處理 (URL Routing & 404 Handling)
+### Summary
+引入了 `vue-router` 並實作了基於 URL 的導航系統。現在使用者可以直接透過網址訪問特定頁面，並支援瀏覽器的前進/後退功能，同時增加了 404 與首頁歡迎狀態。
+### Changed Files
+- tiny-wiki/client/package.json
+- tiny-wiki/client/src/main.js
+- tiny-wiki/client/src/router.js
+- tiny-wiki/client/src/App.vue
+### Notes
+- **路由整合**：使用 `WebHistory` 模式實作了動態路徑匹配 `/:wikiPath(.*)*`。
+- **智慧解析**：在 `App.vue` 中透過 `resolveAndLoad` 異步解析網址列中的 path 或 name。若網址為空，自動嘗試載入 `index.md`。
+- **狀態處理**：
+    - **404 頁面**：當路徑無法對應到任何實體檔案時，顯示具備「回到首頁」功能的美化 404 頁面。
+    - **首頁歡迎**：當無選取頁面且 `index.md` 不存在時，顯示帶有手寫風格標題的歡迎畫面。
+- **導覽同步**：點擊側邊欄或文內連結時，改為透過 `router.push` 更新網址，確保 URL 與目前閱讀內容同步。
