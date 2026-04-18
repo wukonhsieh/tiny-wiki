@@ -18,6 +18,7 @@
 - [x] Task 16 - 前端 - Frontmatter 解析與表格顯示 (Frontmatter Parsing and Display)
 - [x] Task 17 - 前端 - 導覽流程優化與未修改跳轉 (Navigation UX Improvement)
 - [x] Task 18 - 前端 - 編輯器圖示視覺統一化 (Editor Icon Visual Unification)
+- [x] Task 19 - 前端 - 側邊欄 UI 精簡與手寫風格品牌化 (Sidebar Cleanup & Handwriting Branding)
 
 # Change Logs
 
@@ -230,3 +231,14 @@
 ### Notes
 - **圖示替換**：引入了 Feather 風格的 `save` (磁碟) 與 `alert-triangle` (警告) 圖示。
 - **佈局優化**：利用 Flexbox 重新定義了按鈕與通知列的佈局，確保圖示與文字垂直居中並保持適當間距。
+
+## Task 19 - 前端 - 側邊欄 UI 精簡與手寫風格品牌化 (Sidebar Cleanup & Handwriting Branding)
+### Summary
+移除側邊欄冗餘的頂部按鈕，並將標題改為優雅的手寫草寫風格，強化了專案的「極簡」與「設計感」品牌特徵。
+### Changed Files
+- tiny-wiki/client/src/style.css
+- tiny-wiki/client/src/components/Sidebar.vue
+### Notes
+- **功能簡化**：移除了 `.sidebar-actions`，現在檔案庫操作完全由右鍵選單 (Context Menu) 提供。
+- **品牌字體**：引入了 Google Fonts 的 `Dancing Script` 字體，並應用於側邊欄大標題。
+- **視覺平衡**：將側邊欄標題改為居中對齊，並增加了上下間距 (Padding)，使整體視覺感更具呼吸感。

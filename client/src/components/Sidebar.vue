@@ -120,14 +120,6 @@ onMounted(fetchTree);
   <aside class="sidebar">
     <div class="sidebar-header">
       <h2>Tiny Wiki</h2>
-      <div class="sidebar-actions">
-        <button class="btn-action" title="New File" @click="createNewFile">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-        </button>
-        <button class="btn-action" title="New Folder" @click="createNewFolder">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
-        </button>
-      </div>
     </div>
     <div class="sidebar-content" @contextmenu.prevent.stop="e => handleContextMenu({ e, path: '' })">
       <div v-if="loading && !treeData" class="state-msg">Loading...</div>
@@ -166,34 +158,16 @@ onMounted(fetchTree);
   flex-direction: column;
 }
 .sidebar-header {
-  padding: 15px 20px;
+  padding: 25px 20px;
   border-bottom: 1px solid var(--border);
-  text-align: left;
+  text-align: center;
 }
 .sidebar-header h2 {
-  margin: 0 0 10px 0;
-  font-size: 1.25rem;
+  margin: 0;
+  font-size: 2rem;
   color: var(--text-h);
-}
-.sidebar-actions {
-  display: flex;
-  gap: 8px;
-}
-.btn-action {
-  padding: 6px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  color: var(--text);
-}
-.btn-action:hover {
-  background: var(--accent-bg);
-  border-color: var(--accent);
+  font-family: var(--handwriting);
+  font-weight: 600;
 }
 .sidebar-content {
   flex: 1;
