@@ -10,6 +10,7 @@
 - [x] Task 8 - 前端 - 滿版佈局優化 (Full-screen Refinement)
 - [x] Task 9 - 前端 - 大地色系調色盤套用 (Earthy Theme Application)
 - [x] Task 10 - 前端 - 頂級設計感字型整合 (Premium Typography Integration)
+- [x] Task 11 - 前端 - 介面細節調整與組件優化 (UI Refinement & Component Optimization)
 
 # Change Logs
 
@@ -133,3 +134,16 @@
 - **內文字型**：採用 `Inter` 搭配 `Noto Sans TC` (Weight: 300)，確保中英文閱讀的輕盈感與一致性。
 - **代碼字型**：採用 `JetBrains Mono`，提升程式碼區塊的質感。
 - **全域調整**：將全域 `font-weight` 預設設定為 `300`，使整個介面呈現出「細線條」的高級感。
+
+## Task 11 - 前端 - 介面細節調整與組件優化 (UI Refinement & Component Optimization)
+### Summary
+根據使用者反饋，進一步優化了 Wiki 閱讀區域的佈局與組件外觀，包括擴大顯示寬度、調整對齊方式，並將切換按鈕改為現代的膠囊形狀。
+### Changed Files
+- tiny-wiki/client/src/App.vue
+- tiny-wiki/client/src/components/WikiReader.vue
+### Notes
+- **Wiki 佈局**：將 `.wiki-reader` 與 `.wiki-editor` 的對齊方式顯式設定為 `text-align: left` 以修正全域對齊問題。
+- **Wiki 寬度**：將 `.wiki-reader` 的 `max-width` 擴大至 `1200px`，開闊閱讀視野。
+- **膠囊按鈕**：將 `Preview/Edit` 切換器的 `border-radius` 設定為 `25px`，營造出流暢的膠囊視覺感。
+- **標題輕量化**：將 `.page-header` 的底部分割線寬度縮減為 `1px`，降低對標題的過度強調，使頁面更清爽。
+- **配色整合**：同步更新了切換器的背景色與作用中狀態色，使其與大地色系主題完美融合。

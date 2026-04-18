@@ -120,25 +120,25 @@ body {
 
 .view-toggle {
   display: flex;
-  background-color: #f1f3f5;
+  background-color: var(--code-bg);
   padding: 4px;
-  border-radius: 8px;
+  border-radius: 25px;
 }
 
 .toggle-btn {
   padding: 6px 20px;
   border: none;
   background: transparent;
-  border-radius: 6px;
+  border-radius: 25px;
   cursor: pointer;
   font-weight: 500;
-  color: #495057;
+  color: var(--text);
   transition: all 0.2s;
 }
 
 .toggle-btn.active {
-  background-color: #fff;
-  color: #212529;
+  background-color: var(--bg);
+  color: var(--text-h);
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 

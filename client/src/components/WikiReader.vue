@@ -72,18 +72,19 @@ watch(() => props.path, (newPath) => {
 
 <style scoped>
 .wiki-reader {
-  max-width: 900px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   padding: 40px 20px;
   box-sizing: border-box;
   position: relative;
+  text-align: left;
 }
 
 .page-header {
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 2px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .page-title {
