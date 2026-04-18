@@ -95,9 +95,16 @@ onUnmounted(() => {
     <transition name="slide-down">
       <div v-if="isDirty" class="notification-bar">
         <div class="notification-content">
-          <span class="notification-text">⚠️ You have unsaved changes.</span>
+          <span class="notification-text">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            You have unsaved changes.
+          </span>
           <button class="btn btn-save-now" :disabled="saving" @click="handleSave">
-            {{ saving ? 'Saving...' : 'Save Now' }}
+            <template v-if="saving">Saving...</template>
+            <template v-else>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              Save Now
+            </template>
           </button>
         </div>
       </div>
@@ -108,7 +115,11 @@ onUnmounted(() => {
       <div class="actions">
         <button class="btn btn-cancel" @click="$emit('cancel')">Cancel</button>
         <button class="btn btn-save" :disabled="saving" @click="handleSave">
-          {{ saving ? 'Saving...' : '💾 Save' }}
+          <template v-if="saving">Saving...</template>
+          <template v-else>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            Save
+          </template>
         </button>
       </div>
     </div>
@@ -218,6 +229,20 @@ onUnmounted(() => {
   cursor: pointer;
   border: 1px solid var(--border);
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.icon-inline {
+  flex-shrink: 0;
+}
+
+.notification-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .btn-save {

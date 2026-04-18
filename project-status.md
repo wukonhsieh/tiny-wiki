@@ -17,6 +17,7 @@
 - [x] Task 15 - 前端 - 側邊欄 UX 優化與對齊修正 (Sidebar UX & Alignment Fix)
 - [x] Task 16 - 前端 - Frontmatter 解析與表格顯示 (Frontmatter Parsing and Display)
 - [x] Task 17 - 前端 - 導覽流程優化與未修改跳轉 (Navigation UX Improvement)
+- [x] Task 18 - 前端 - 編輯器圖示視覺統一化 (Editor Icon Visual Unification)
 
 # Change Logs
 
@@ -220,3 +221,12 @@
 - **狀態同步**：在 `WikiEditor.vue` 中透過 `dirtyChange` 事件將編輯器的 `isDirty` 狀態同步至父組件 `App.vue`。
 - **條件跳轉**：修改了 `App.vue` 的 `handleSelect` 邏輯，僅在 `isEditing` 且 `isDirty` 同時為真時才觸發 `confirm` 視窗。
 - **重設機制**：在成功切換頁面後，會自動重置 `isDirty` 狀態。
+
+## Task 18 - 前端 - 編輯器圖示視覺統一化 (Editor Icon Visual Unification)
+### Summary
+將編輯器中的 Emoji 圖示（如 💾, ⚠️）替換為與全域風格一致的扁平化 SVG 圖示，提升了視覺的專業感與一致性。
+### Changed Files
+- tiny-wiki/client/src/components/WikiEditor.vue
+### Notes
+- **圖示替換**：引入了 Feather 風格的 `save` (磁碟) 與 `alert-triangle` (警告) 圖示。
+- **佈局優化**：利用 Flexbox 重新定義了按鈕與通知列的佈局，確保圖示與文字垂直居中並保持適當間距。
