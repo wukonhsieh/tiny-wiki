@@ -39,18 +39,37 @@ watch(selectedFilePath, () => {
   <div class="app-layout">
     <Sidebar :selected-path="selectedFilePath" @select="handleSelect" />
     <main class="main-content">
+      <!-- 頂部切換列 -->
+      <div v-if="selectedFilePath" class="top-bar">
+        <div class="view-toggle">
+          <button 
+            :class="['toggle-btn', { active: !isEditing }]" 
+            @click="isEditing = false"
+          >
+            Preview
+          </button>
+          <button 
+            :class="['toggle-btn', { active: isEditing }]" 
+            @click="isEditing = true"
+          >
+            Edit
+          </button>
+        </div>
+      </div>
+
       <template v-if="selectedFilePath">
-        <WikiEditor 
-          v-if="isEditing" 
-          :path="selectedFilePath" 
-          @save="handleSave"
-          @cancel="handleCancel"
-        />
-        <WikiReader 
-          v-else 
-          :path="selectedFilePath" 
-          @edit="startEdit"
-        />
+        <div class="page-container">
+          <WikiEditor 
+            v-if="isEditing" 
+            :path="selectedFilePath" 
+            @save="handleSave"
+            @cancel="handleCancel"
+          />
+          <WikiReader 
+            v-else 
+            :path="selectedFilePath" 
+          />
+        </div>
       </template>
       <div v-else class="empty-state">
         <div class="empty-msg">
@@ -81,9 +100,51 @@ body {
 
 .main-content {
   flex: 1;
-  min-width: 0; /* 防止子元素撐破 Flex 容器 */
-  overflow-y: auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background-color: #fff;
+}
+
+.top-bar {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.view-toggle {
+  display: flex;
+  background-color: #f1f3f5;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.toggle-btn {
+  padding: 6px 20px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+  transition: all 0.2s;
+}
+
+.toggle-btn.active {
+  background-color: #fff;
+  color: #212529;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.page-container {
+  flex: 1;
+  overflow-y: auto;
   position: relative;
 }
 

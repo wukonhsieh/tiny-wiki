@@ -56,15 +56,6 @@ watch(() => props.path, (newPath) => {
 
 <template>
   <div class="wiki-reader">
-    <div class="reader-toolbar">
-      <button class="btn-edit" @click="$emit('edit')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2">
-          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-        </svg>
-        Edit
-      </button>
-    </div>
-    
     <div v-if="loading" class="state-msg">Loading content...</div>
     <div v-else-if="error" class="state-msg error">
       <h3>Error</h3>
@@ -87,30 +78,6 @@ watch(() => props.path, (newPath) => {
   padding: 40px 20px;
   box-sizing: border-box;
   position: relative;
-}
-
-.reader-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-}
-
-.btn-edit {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
-}
-
-.btn-edit:hover {
-  background-color: #0056b3;
 }
 
 .page-header {

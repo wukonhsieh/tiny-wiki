@@ -3,7 +3,7 @@
 - [x] Task 1 - 前端 - 扁平化圖示替換與 Sidebar 清理
 - [x] Task 2 - 前端 - 響應式佈局 (Responsive Layout)
 - [x] Task 3 - 前端 - Markdown 標題自動擷取
-- [ ] Task 4 - 前端 - 頂部 Preview/Edit Toggle 切換
+- [x] Task 4 - 前端 - 頂部 Preview/Edit Toggle 切換
 - [ ] Task 5 - 前端 - 未儲存提示 (Notification Bar) 與快捷鍵
 - [ ] Task 6 - 前端 - 側邊欄右鍵選單 (Context Menu)
 - [ ] Task 7 - 前端 - 整合右鍵新增 API
@@ -43,3 +43,15 @@
 - 自動移除第一行的 `# ` 前綴。
 - 採用了更大的字體與細緻的邊框設計作為頁面 Header。
 - 優化了 Edit 按鈕的樣式，改為 Feather 圖示與藍色主題。
+
+## Task 4 - 前端 - 頂部 Preview/Edit Toggle 切換
+### Summary
+在 `App.vue` 頂部實作了置中的 Preview/Edit 切換器，統一了全域的檢視模式管理，並優化了整體的佈局層級。
+### Changed Files
+- tiny-wiki/client/src/App.vue
+- tiny-wiki/client/src/components/WikiReader.vue
+- tiny-wiki/scratch/check_task_4_iter2.sh
+### Notes
+- 移除了 `WikiReader` 內部的編輯按鈕。
+- 引入了 `top-bar` 容器與 `view-toggle` 組件。
+- 切換器採用了現代化的按鈕組設計，具備平滑的切換效果。
