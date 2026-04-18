@@ -115,6 +115,20 @@ app.delete('/api/file', async (req, res) => {
   }
 });
 
+// POST /api/directory - 建立資料夾
+app.post('/api/directory', async (req, res) => {
+  const { path: reqPath } = req.body;
+  const fullPath = resolveSafePath(reqPath);
+  if (!fullPath) return res.status(400).json({ error: "Invalid path" });
+
+  try {
+    await fs.mkdir(fullPath, { recursive: true });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/hello', (req, res) => {
   res.json({ message: "hello from server" });
 });

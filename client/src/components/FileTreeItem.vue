@@ -12,7 +12,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['select']);
+const emit = defineEmits(['select', 'delete']);
 
 const isOpen = ref(false);
 
@@ -29,6 +29,13 @@ const selectItem = () => {
     toggle();
   }
 };
+
+const handleDelete = (e) => {
+  e.stopPropagation();
+  if (confirm(`Are you sure you want to delete ${props.item.name}?`)) {
+    emit('delete', props.item.path);
+  }
+};
 </script>
 
 <template>
@@ -43,6 +50,7 @@ const selectItem = () => {
     >
       <span class="icon">{{ item.type === 'directory' ? (isOpen ? '📂' : '📁') : '📄' }}</span>
       <span class="name">{{ item.name }}</span>
+      <button class="btn-delete" @click="handleDelete">🗑️</button>
     </div>
     
     <div v-if="item.type === 'directory' && isOpen" class="item-children">
@@ -52,6 +60,7 @@ const selectItem = () => {
         :item="child"
         :selected-path="selectedPath"
         @select="(path) => $emit('select', path)"
+        @delete="(path) => $emit('delete', path)"
       />
     </div>
   </div>
@@ -69,9 +78,14 @@ const selectItem = () => {
   border-radius: 4px;
   transition: background-color 0.2s;
   font-size: 0.9rem;
+  position: relative;
+  group: hover;
 }
 .item-label:hover {
   background-color: #e9ecef;
+}
+.item-label:hover .btn-delete {
+  opacity: 1;
 }
 .item-label.is-active {
   background-color: #e7f1ff;
@@ -81,6 +95,25 @@ const selectItem = () => {
 .icon {
   margin-right: 8px;
   font-size: 1rem;
+}
+.name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn-delete {
+  opacity: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px 5px;
+  font-size: 0.8rem;
+  transition: opacity 0.2s;
+}
+.btn-delete:hover {
+  background: #f8d7da;
+  border-radius: 3px;
 }
 .item-children {
   margin-left: 18px;

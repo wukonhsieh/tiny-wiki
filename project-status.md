@@ -6,19 +6,18 @@
 - [x] Task 4 - 後端 - 檔案內容讀寫與刪除 API
 - [x] Task 5 - 前端 - 閱讀模式 (Viewer)
 - [x] Task 6 - 前端 - 編輯模式與即時預覽 (Editor)
-- [ ] Task 7 - 檔案生命週期管理 (新增與刪除功能)
+- [x] Task 7 - 檔案生命週期管理 (新增與刪除功能)
 
 # Change Logs
 
-## Task 6 - 前端 - 編輯模式與即時預覽 (Editor)
+## Task 7 - 檔案生命週期管理 (新增與刪除功能)
 ### Summary
-實作了雙欄式編輯器，支援即時預覽與存檔功能。
+完善了 Wiki 的檔案生命週期管理，支援新增檔案、資料夾以及安全刪除。
 ### Changed Files
-- tiny-wiki/client/src/components/WikiEditor.vue
-- tiny-wiki/client/src/utils/markdown.js
-- tiny-wiki/client/src/components/WikiReader.vue
-- tiny-wiki/client/src/App.vue
-- tiny-wiki/scratch/check_task_6.sh
+- tiny-wiki/server/index.js
+- tiny-wiki/client/src/components/Sidebar.vue
+- tiny-wiki/client/src/components/FileTreeItem.vue
+- tiny-wiki/scratch/check_task_7.sh
 ### Notes
-- 抽取了公共 Markdown 渲染邏輯。
-- 加入了切換檔案時的未儲存提示。
+- 新增了 `POST /api/directory` 接口。
+- 實作了 UI 上的操作按鈕與重新整理邏輯。
