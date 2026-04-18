@@ -1,20 +1,57 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import Sidebar from './components/Sidebar.vue';
 import WikiReader from './components/WikiReader.vue';
+import WikiEditor from './components/WikiEditor.vue';
 
 const selectedFilePath = ref('');
+const isEditing = ref(false);
 
 const handleSelect = (path) => {
+  if (isEditing.value) {
+    if (!confirm('You have unsaved changes. Discard and switch page?')) {
+      return;
+    }
+  }
   selectedFilePath.value = path;
+  isEditing.value = false;
 };
+
+const startEdit = () => {
+  isEditing.value = true;
+};
+
+const handleSave = () => {
+  isEditing.value = false;
+};
+
+const handleCancel = () => {
+  isEditing.value = false;
+};
+
+// Reset edit mode when file path changes via other means
+watch(selectedFilePath, () => {
+  isEditing.value = false;
+});
 </script>
 
 <template>
   <div class="app-layout">
     <Sidebar :selected-path="selectedFilePath" @select="handleSelect" />
     <main class="main-content">
-      <WikiReader v-if="selectedFilePath" :path="selectedFilePath" />
+      <template v-if="selectedFilePath">
+        <WikiEditor 
+          v-if="isEditing" 
+          :path="selectedFilePath" 
+          @save="handleSave"
+          @cancel="handleCancel"
+        />
+        <WikiReader 
+          v-else 
+          :path="selectedFilePath" 
+          @edit="startEdit"
+        />
+      </template>
       <div v-else class="empty-state">
         <div class="empty-msg">
           <span class="empty-icon">📖</span>
@@ -46,6 +83,7 @@ body {
   flex: 1;
   overflow-y: auto;
   background-color: #fff;
+  position: relative;
 }
 
 .empty-state {

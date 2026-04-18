@@ -1,8 +1,7 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
-import MarkdownIt from 'markdown-it';
-import hljs from 'highlight.js';
-import 'highlight.js/styles/github.css'; // 使用 GitHub 風格的高亮
+import { ref, watch } from 'vue';
+import { renderMarkdown } from '../utils/markdown';
+import 'highlight.js/styles/github.css';
 
 const props = defineProps({
   path: {
@@ -11,20 +10,8 @@ const props = defineProps({
   }
 });
 
-const md = new MarkdownIt({
-  highlight: function (str, lang) {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return '<pre class="hljs"><code>' +
-               hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
-               '</code></pre>';
-      } catch (__) {}
-    }
-    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
-  }
-});
+const emit = defineEmits(['edit']);
 
-const content = ref('');
 const renderedHtml = ref('');
 const loading = ref(false);
 const error = ref(null);
@@ -40,8 +27,7 @@ const fetchFileContent = async (filePath) => {
     if (!response.ok) throw new Error('File not found or server error');
     
     const data = await response.json();
-    content.value = data.content;
-    renderedHtml.value = md.render(data.content);
+    renderedHtml.value = renderMarkdown(data.content);
   } catch (err) {
     error.value = err.message;
     renderedHtml.value = '';
@@ -58,6 +44,9 @@ watch(() => props.path, (newPath) => {
 
 <template>
   <div class="wiki-reader">
+    <div class="reader-toolbar">
+      <button class="btn-edit" @click="$emit('edit')">✏️ Edit</button>
+    </div>
     <div v-if="loading" class="state-msg">Loading content...</div>
     <div v-else-if="error" class="state-msg error">
       <h3>Error</h3>
@@ -72,6 +61,28 @@ watch(() => props.path, (newPath) => {
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
+  position: relative;
+}
+
+.reader-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.btn-edit {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-edit:hover {
+  background: #f0f0f0;
 }
 
 .state-msg {
@@ -118,12 +129,5 @@ watch(() => props.path, (newPath) => {
   font-size: 85%;
   background-color: rgba(27,31,35,0.05);
   border-radius: 3px;
-}
-
-:deep(.markdown-body blockquote) {
-  padding: 0 1em;
-  color: #6a737d;
-  border-left: 0.25em solid #dfe2e1;
-  margin: 0 0 16px 0;
 }
 </style>
