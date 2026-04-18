@@ -4,7 +4,7 @@
 - [x] Task 2 - 前端 - 響應式佈局 (Responsive Layout)
 - [x] Task 3 - 前端 - Markdown 標題自動擷取
 - [x] Task 4 - 前端 - 頂部 Preview/Edit Toggle 切換
-- [ ] Task 5 - 前端 - 未儲存提示 (Notification Bar) 與快捷鍵
+- [x] Task 5 - 前端 - 未儲存提示 (Notification Bar) 與快捷鍵
 - [ ] Task 6 - 前端 - 側邊欄右鍵選單 (Context Menu)
 - [ ] Task 7 - 前端 - 整合右鍵新增 API
 
@@ -55,3 +55,14 @@
 - 移除了 `WikiReader` 內部的編輯按鈕。
 - 引入了 `top-bar` 容器與 `view-toggle` 組件。
 - 切換器採用了現代化的按鈕組設計，具備平滑的切換效果。
+
+## Task 5 - 前端 - 未儲存提示 (Notification Bar) 與快捷鍵
+### Summary
+在編輯器中引入了 `isDirty` 狀態監控，當內容有變動時會在頂部浮現通知列提醒儲存，並支援了全域 `Ctrl+S` 快捷鍵。
+### Changed Files
+- tiny-wiki/client/src/components/WikiEditor.vue
+- tiny-wiki/scratch/check_task_5_iter2.sh
+### Notes
+- 使用了 Vue 的 `<transition>` 實作通知列的平滑滑入效果。
+- 快捷鍵同時支援 `Ctrl+S` 與 Mac 的 `Cmd+S`。
+- 存檔成功後自動重設 `isDirty` 狀態並隱藏通知列。

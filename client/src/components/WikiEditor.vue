@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { renderMarkdown } from '../utils/markdown';
 import 'highlight.js/styles/github.css';
 
@@ -13,11 +13,13 @@ const props = defineProps({
 const emit = defineEmits(['save', 'cancel']);
 
 const rawContent = ref('');
+const originalContent = ref('');
 const loading = ref(true);
 const saving = ref(false);
 const error = ref(null);
 
 const renderedHtml = computed(() => renderMarkdown(rawContent.value));
+const isDirty = computed(() => rawContent.value !== originalContent.value);
 
 const fetchContent = async () => {
   loading.value = true;
@@ -26,6 +28,7 @@ const fetchContent = async () => {
     if (!response.ok) throw new Error('Failed to load file');
     const data = await response.json();
     rawContent.value = data.content;
+    originalContent.value = data.content;
   } catch (err) {
     error.value = err.message;
   } finally {
@@ -34,6 +37,7 @@ const fetchContent = async () => {
 };
 
 const handleSave = async () => {
+  if (saving.value) return;
   saving.value = true;
   try {
     const response = await fetch('/api/file', {
@@ -45,6 +49,7 @@ const handleSave = async () => {
       })
     });
     if (!response.ok) throw new Error('Save failed');
+    originalContent.value = rawContent.value;
     emit('save');
   } catch (err) {
     alert('Error saving: ' + err.message);
@@ -53,11 +58,38 @@ const handleSave = async () => {
   }
 };
 
-onMounted(fetchContent);
+const handleKeyboard = (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    if (isDirty.value) {
+      handleSave();
+    }
+  }
+};
+
+onMounted(() => {
+  fetchContent();
+  window.addEventListener('keydown', handleKeyboard);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyboard);
+});
 </script>
 
 <template>
   <div class="wiki-editor">
+    <transition name="slide-down">
+      <div v-if="isDirty" class="notification-bar">
+        <div class="notification-content">
+          <span class="notification-text">⚠️ You have unsaved changes.</span>
+          <button class="btn btn-save-now" :disabled="saving" @click="handleSave">
+            {{ saving ? 'Saving...' : 'Save Now' }}
+          </button>
+        </div>
+      </div>
+    </transition>
+
     <div class="editor-toolbar">
       <span class="editing-path">Editing: <code>{{ path }}</code></span>
       <div class="actions">
@@ -89,6 +121,60 @@ onMounted(fetchContent);
   flex-direction: column;
   height: 100%;
   width: 100%;
+}
+
+.notification-bar {
+  background-color: #fff3cd;
+  border-bottom: 1px solid #ffeeba;
+  color: #856404;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.notification-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.notification-text {
+  font-weight: 500;
+}
+
+.btn-save-now {
+  background-color: #ffc107;
+  color: #212529;
+  border-color: #ffc107;
+  font-weight: 600;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+}
+
+.btn-save-now:hover {
+  background-color: #e0a800;
+}
+
+.btn-save-now:disabled {
+  background-color: #ffc107;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
 }
 
 .editor-toolbar {
