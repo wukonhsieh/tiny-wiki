@@ -36,6 +36,13 @@ const handleDelete = (e) => {
     emit('delete', props.item.path);
   }
 };
+
+const onLabelContextMenu = (e) => {
+  e.stopPropagation();
+  if (props.item.type === 'directory') {
+    emit('contextmenu', { e, path: props.item.path });
+  }
+};
 </script>
 
 <template>
@@ -47,7 +54,7 @@ const handleDelete = (e) => {
         'is-directory': item.type === 'directory' 
       }"
       @click="selectItem"
-      @contextmenu.prevent="e => item.type === 'directory' && $emit('contextmenu', { e, path: item.path })"
+      @contextmenu.prevent="e => onLabelContextMenu(e)"
     >
       <span class="icon">
         <!-- Folder Icon -->

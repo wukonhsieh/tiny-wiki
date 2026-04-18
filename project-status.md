@@ -14,6 +14,7 @@
 - [x] Task 12 - 文件 - Markdown 語法全攻略教學文件 (Markdown Guide Documentation)
 - [x] Task 13 - 文件 - 專案 README 撰寫 (Project README)
 - [x] Task 14 - 前端 - 內部頁面連結跳轉支援 (Internal Wiki Linking)
+- [x] Task 15 - 前端 - 側邊欄 UX 優化與對齊修正 (Sidebar UX & Alignment Fix)
 
 # Change Logs
 
@@ -183,3 +184,14 @@
 - 支援了相對路徑的自動拼接，確保從子目錄頁面跳轉至其他頁面時路徑正確。
 - 透過 `emit('select', path)` 通知父組件切換當前選中的檔案。
 - 在 `Markdown-Guide.md` 中加入了內部連結的使用範例。
+
+## Task 15 - 前端 - 側邊欄 UX 優化與對齊修正 (Sidebar UX & Alignment Fix)
+### Summary
+修正了側邊欄文字居中的不協調感，並優化了右鍵選單的觸發邏輯，確保在資料夾及空白區域皆能正常調出操作選單。
+### Changed Files
+- tiny-wiki/client/src/components/Sidebar.vue
+- tiny-wiki/client/src/components/FileTreeItem.vue
+### Notes
+- **對齊修正**：將 `.tree-container` 與 `.sidebar-header` 的 `text-align` 統一設定為 `left`，提升閱讀視覺平衡。
+- **全域右鍵支援**：在側邊欄空白區域 (`.sidebar-content`) 加入右鍵監聽，允許在根目錄 (Root) 下快速新增檔案/資料夾。修正了事件冒泡導致選單被立即關閉的問題。
+- **資料夾右鍵優化**：重構了 `FileTreeItem` 的右鍵觸發邏輯，確保事件正確冒泡並攜帶路徑資訊，解決了資料夾選單無法顯示的問題。

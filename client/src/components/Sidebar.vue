@@ -129,7 +129,7 @@ onMounted(fetchTree);
         </button>
       </div>
     </div>
-    <div class="sidebar-content">
+    <div class="sidebar-content" @contextmenu.prevent.stop="e => handleContextMenu({ e, path: '' })">
       <div v-if="loading && !treeData" class="state-msg">Loading...</div>
       <div v-else-if="error" class="state-msg error">{{ error }}</div>
       <div v-else-if="treeData" class="tree-container">
@@ -168,6 +168,7 @@ onMounted(fetchTree);
 .sidebar-header {
   padding: 15px 20px;
   border-bottom: 1px solid var(--border);
+  text-align: left;
 }
 .sidebar-header h2 {
   margin: 0 0 10px 0;
@@ -204,6 +205,9 @@ onMounted(fetchTree);
   text-align: center;
   color: var(--text);
   opacity: 0.7;
+}
+.tree-container {
+  text-align: left;
 }
 .error {
   color: #dc3545;
