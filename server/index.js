@@ -48,10 +48,68 @@ async function getTree(dirPath, relativePath = '') {
   return null;
 }
 
+// 輔助函數：驗證路徑安全性
+function resolveSafePath(reqPath) {
+  if (!reqPath) return null;
+  // 使用 path.resolve 取得絕對路徑，並比對是否在 REPO_PATH 內
+  const fullPath = path.resolve(REPO_PATH, reqPath);
+  if (!fullPath.startsWith(REPO_PATH)) {
+    return null;
+  }
+  return fullPath;
+}
+
 app.get('/api/tree', async (req, res) => {
   try {
     const tree = await getTree(REPO_PATH);
     res.json(tree);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/file - 讀取內容
+app.get('/api/file', async (req, res) => {
+  const fullPath = resolveSafePath(req.query.path);
+  if (!fullPath) return res.status(400).json({ error: "Invalid path" });
+
+  try {
+    const content = await fs.readFile(fullPath, 'utf-8');
+    res.json({ content });
+  } catch (error) {
+    if (error.code === 'ENOENT') return res.status(404).json({ error: "File not found" });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/file - 儲存內容
+app.post('/api/file', async (req, res) => {
+  const { path: reqPath, content } = req.body;
+  const fullPath = resolveSafePath(reqPath);
+  if (!fullPath) return res.status(400).json({ error: "Invalid path" });
+
+  try {
+    await fs.mkdir(path.dirname(fullPath), { recursive: true });
+    await fs.writeFile(fullPath, content, 'utf-8');
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /api/file - 刪除項目
+app.delete('/api/file', async (req, res) => {
+  const fullPath = resolveSafePath(req.query.path);
+  if (!fullPath) return res.status(400).json({ error: "Invalid path" });
+
+  try {
+    const stats = await fs.stat(fullPath);
+    if (stats.isDirectory()) {
+      await fs.rmdir(fullPath); // 僅允許刪除空目錄
+    } else {
+      await fs.unlink(fullPath);
+    }
+    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
