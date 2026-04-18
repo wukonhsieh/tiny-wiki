@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400&family=Noto+Sans+TC:wght@300;400;500&family=Outfit:wght@300;400;500&display=swap');
+
 :root {
   --text: #1a1a1a;
   --text-h: #000000;
@@ -12,11 +14,11 @@
   --shadow:
     rgba(0, 0, 0, 0.05) 0 10px 15px -3px, rgba(0, 0, 0, 0.03) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --sans: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
+  --heading: 'Outfit', 'Noto Sans TC', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
 
-  font: 18px/145% var(--sans);
+  font: 300 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light;
   color: var(--text);
@@ -40,7 +42,7 @@ body {
 h1,
 h2 {
   font-family: var(--heading);
-  font-weight: 500;
+  font-weight: 300;
   color: var(--text-h);
 }
 

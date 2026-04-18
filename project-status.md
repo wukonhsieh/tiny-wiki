@@ -9,6 +9,7 @@
 - [x] Task 7 - 前端 - 整合右鍵新增 API
 - [x] Task 8 - 前端 - 滿版佈局優化 (Full-screen Refinement)
 - [x] Task 9 - 前端 - 大地色系調色盤套用 (Earthy Theme Application)
+- [x] Task 10 - 前端 - 頂級設計感字型整合 (Premium Typography Integration)
 
 # Change Logs
 
@@ -120,3 +121,15 @@
 - 移除了所有硬編碼的顏色 (如 `#fff`, `#eee`, `#007bff`)，全面改用 CSS 變數以維持一致性。
 - 將所有 Wiki 內容文字與標題顏色設定為純黑 (`#000000`)。
 - 優化了 Hover 與 Active 狀態，採用調色盤中的相鄰色系進行細微變化。
+
+## Task 10 - 前端 - 頂級設計感字型整合 (Premium Typography Integration)
+### Summary
+引入了 Google Fonts 上的頂級設計感字型組合（Outfit, Inter, JetBrains Mono, Noto Sans TC），並全面採用 Light (300) 權重，營造出極細、現代且專業的視覺質感。
+### Changed Files
+- tiny-wiki/client/src/style.css
+- tiny-wiki/client/src/components/WikiReader.vue
+### Notes
+- **標題字型**：採用 `Outfit` (Weight: 300)，具備強烈的幾何感與現代設計味。
+- **內文字型**：採用 `Inter` 搭配 `Noto Sans TC` (Weight: 300)，確保中英文閱讀的輕盈感與一致性。
+- **代碼字型**：採用 `JetBrains Mono`，提升程式碼區塊的質感。
+- **全域調整**：將全域 `font-weight` 預設設定為 `300`，使整個介面呈現出「細線條」的高級感。

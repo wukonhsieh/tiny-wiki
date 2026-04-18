@@ -90,7 +90,8 @@ watch(() => props.path, (newPath) => {
   margin: 0;
   font-size: 2.8rem;
   color: var(--text-h);
-  font-weight: 800;
+  font-family: var(--heading);
+  font-weight: 300;
   letter-spacing: -0.02em;
 }
 
@@ -115,6 +116,8 @@ watch(() => props.path, (newPath) => {
   padding-bottom: 0.3em;
   font-size: 2em;
   border-bottom: 1px solid var(--border);
+  font-family: var(--heading);
+  font-weight: 400;
 }
 
 :deep(.markdown-body h2) {
@@ -122,6 +125,8 @@ watch(() => props.path, (newPath) => {
   font-size: 1.5em;
   border-bottom: 1px solid var(--border);
   margin-top: 24px;
+  font-family: var(--heading);
+  font-weight: 400;
 }
 
 :deep(.markdown-body pre) {
