@@ -87,8 +87,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #fff;
-  color: #2c3e50;
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 .app-layout {
@@ -104,7 +104,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: #fff;
+  background-color: var(--bg);
 }
 
 .top-bar {
@@ -112,8 +112,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid #eee;
-  background-color: #fff;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--bg);
   flex-shrink: 0;
   z-index: 10;
 }

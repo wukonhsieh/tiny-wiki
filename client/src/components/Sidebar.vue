@@ -160,19 +160,19 @@ onMounted(fetchTree);
 .sidebar {
   width: 280px;
   height: 100vh;
-  border-right: 1px solid #ddd;
-  background-color: #f8f9fa;
+  border-right: 1px solid var(--border);
+  background-color: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
 }
 .sidebar-header {
   padding: 15px 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
 }
 .sidebar-header h2 {
   margin: 0 0 10px 0;
   font-size: 1.25rem;
-  color: #333;
+  color: var(--text-h);
 }
 .sidebar-actions {
   display: flex;
@@ -180,18 +180,19 @@ onMounted(fetchTree);
 }
 .btn-action {
   padding: 6px;
-  background: white;
-  border: 1px solid #ced4da;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  color: var(--text);
 }
 .btn-action:hover {
-  background: #e9ecef;
-  border-color: #adb5bd;
+  background: var(--accent-bg);
+  border-color: var(--accent);
 }
 .sidebar-content {
   flex: 1;
@@ -201,7 +202,8 @@ onMounted(fetchTree);
 .state-msg {
   padding: 20px;
   text-align: center;
-  color: #666;
+  color: var(--text);
+  opacity: 0.7;
 }
 .error {
   color: #dc3545;

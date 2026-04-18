@@ -8,6 +8,7 @@
 - [x] Task 6 - 前端 - 側邊欄右鍵選單 (Context Menu)
 - [x] Task 7 - 前端 - 整合右鍵新增 API
 - [x] Task 8 - 前端 - 滿版佈局優化 (Full-screen Refinement)
+- [x] Task 9 - 前端 - 大地色系調色盤套用 (Earthy Theme Application)
 
 # Change Logs
 
@@ -102,3 +103,20 @@
 - 將 `#app` 的 `width: 1126px` 改為 `100%`。
 - 將 `.app-layout` 的 `width: 100vw` 改為 `100%` 以避免潛在的滾動條問題。
 - 移除了 `#app` 的側邊邊框 (`border-inline`)。
+
+## Task 9 - 前端 - 大地色系調色盤套用 (Earthy Theme Application)
+### Summary
+根據使用者提供的調色盤，將應用介面全面更新為溫暖的大地色系 (Earthy Tones)，並將文字顏色統一為黑色，提升視覺層次感與閱讀舒適度。
+### Changed Files
+- tiny-wiki/client/src/style.css
+- tiny-wiki/client/src/App.vue
+- tiny-wiki/client/src/components/Sidebar.vue
+- tiny-wiki/client/src/components/WikiReader.vue
+- tiny-wiki/client/src/components/WikiEditor.vue
+- tiny-wiki/client/src/components/FileTreeItem.vue
+- tiny-wiki/client/src/components/ContextMenu.vue
+### Notes
+- 在 `:root` 中定義了新的 CSS 變數：`--sidebar-bg` (大地淺色), `--border` (暖灰褐), `--accent` (柔和棕)。
+- 移除了所有硬編碼的顏色 (如 `#fff`, `#eee`, `#007bff`)，全面改用 CSS 變數以維持一致性。
+- 將所有 Wiki 內容文字與標題顏色設定為純黑 (`#000000`)。
+- 優化了 Hover 與 Active 狀態，採用調色盤中的相鄰色系進行細微變化。

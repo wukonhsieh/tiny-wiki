@@ -83,13 +83,13 @@ watch(() => props.path, (newPath) => {
 .page-header {
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--border);
 }
 
 .page-title {
   margin: 0;
   font-size: 2.8rem;
-  color: #1a1d21;
+  color: var(--text-h);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
@@ -97,7 +97,8 @@ watch(() => props.path, (newPath) => {
 .state-msg {
   text-align: center;
   padding: 50px;
-  color: #6c757d;
+  color: var(--text);
+  opacity: 0.7;
 }
 
 .error {
@@ -107,19 +108,19 @@ watch(() => props.path, (newPath) => {
 /* Markdown Styles */
 :deep(.markdown-body) {
   line-height: 1.6;
-  color: #24292e;
+  color: var(--text-h);
 }
 
 :deep(.markdown-body h1) {
   padding-bottom: 0.3em;
   font-size: 2em;
-  border-bottom: 1px solid #eaecef;
+  border-bottom: 1px solid var(--border);
 }
 
 :deep(.markdown-body h2) {
   padding-bottom: 0.3em;
   font-size: 1.5em;
-  border-bottom: 1px solid #eaecef;
+  border-bottom: 1px solid var(--border);
   margin-top: 24px;
 }
 
@@ -128,7 +129,7 @@ watch(() => props.path, (newPath) => {
   overflow: auto;
   font-size: 85%;
   line-height: 1.45;
-  background-color: #f6f8fa;
+  background-color: var(--code-bg);
   border-radius: 6px;
 }
 
@@ -136,7 +137,7 @@ watch(() => props.path, (newPath) => {
   padding: 0.2em 0.4em;
   margin: 0;
   font-size: 85%;
-  background-color: rgba(27,31,35,0.05);
+  background-color: var(--accent-bg);
   border-radius: 3px;
 }
 </style>

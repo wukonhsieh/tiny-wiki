@@ -104,14 +104,14 @@ const handleDelete = (e) => {
   group: hover;
 }
 .item-label:hover {
-  background-color: #e9ecef;
+  background-color: var(--accent-bg);
 }
 .item-label:hover .btn-delete {
   opacity: 1;
 }
 .item-label.is-active {
-  background-color: #e7f1ff;
-  color: #007bff;
+  background-color: var(--accent);
+  color: var(--text-h);
   font-weight: 600;
 }
 .icon {
@@ -124,6 +124,7 @@ const handleDelete = (e) => {
   overflow: hidden;
   text-overflow: ellipsis;
   margin-right: 8px;
+  color: var(--text);
 }
 .btn-delete {
   opacity: 0;
@@ -133,13 +134,15 @@ const handleDelete = (e) => {
   padding: 2px 5px;
   font-size: 0.8rem;
   transition: opacity 0.2s;
+  color: var(--text);
 }
 .btn-delete:hover {
-  background: #f8d7da;
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
   border-radius: 3px;
 }
 .item-children {
   margin-left: 18px;
-  border-left: 1px solid #dee2e6;
+  border-left: 1px solid var(--border);
 }
 </style>

@@ -124,9 +124,9 @@ onUnmounted(() => {
 }
 
 .notification-bar {
-  background-color: #fff3cd;
-  border-bottom: 1px solid #ffeeba;
-  color: #856404;
+  background-color: var(--accent-bg);
+  border-bottom: 1px solid var(--accent-border);
+  color: var(--text-h);
   padding: 10px 20px;
   position: sticky;
   top: 0;
@@ -148,20 +148,20 @@ onUnmounted(() => {
 }
 
 .btn-save-now {
-  background-color: #ffc107;
-  color: #212529;
-  border-color: #ffc107;
+  background-color: var(--accent);
+  color: var(--text-h);
+  border: 1px solid var(--accent-border);
   font-weight: 600;
   padding: 4px 12px;
   font-size: 0.85rem;
+  border-radius: 4px;
 }
 
 .btn-save-now:hover {
-  background-color: #e0a800;
+  background-color: var(--border);
 }
 
 .btn-save-now:disabled {
-  background-color: #ffc107;
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -179,17 +179,18 @@ onUnmounted(() => {
 
 .editor-toolbar {
   padding: 10px 20px;
-  background: #f1f3f5;
-  border-bottom: 1px solid #ddd;
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .editing-path code {
-  background: #e9ecef;
+  background: var(--accent-bg);
   padding: 2px 6px;
   border-radius: 4px;
+  color: var(--text-h);
 }
 
 .actions {
@@ -201,21 +202,27 @@ onUnmounted(() => {
   padding: 6px 16px;
   border-radius: 4px;
   cursor: pointer;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border);
+  font-weight: 500;
 }
 
 .btn-save {
-  background: #28a745;
-  color: white;
-  border-color: #28a745;
+  background: var(--accent);
+  color: var(--text-h);
+  border-color: var(--accent-border);
 }
 
 .btn-save:hover {
-  background: #218838;
+  background: var(--border);
+}
+
+.btn-cancel {
+  background: var(--bg);
+  color: var(--text);
 }
 
 .btn-cancel:hover {
-  background: #e2e6ea;
+  background: var(--code-bg);
 }
 
 .editor-main {
@@ -231,7 +238,7 @@ onUnmounted(() => {
 }
 
 .editor-pane {
-  border-right: 1px solid #eee;
+  border-right: 1px solid var(--border);
 }
 
 textarea {
@@ -244,28 +251,30 @@ textarea {
   line-height: 1.5;
   resize: none;
   outline: none;
-  background-color: #fcfcfc;
+  background-color: var(--bg);
+  color: var(--text-h);
 }
 
 .preview-pane {
   padding: 20px;
-  background: white;
+  background: var(--bg);
 }
 
 .state-msg {
   padding: 50px;
   text-align: center;
+  color: var(--text);
 }
 
 /* Re-use Markdown Styles */
 :deep(.markdown-body) {
   line-height: 1.6;
-  color: #24292e;
+  color: var(--text-h);
 }
-:deep(.markdown-body h1) { border-bottom: 1px solid #eaecef; }
+:deep(.markdown-body h1) { border-bottom: 1px solid var(--border); }
 :deep(.markdown-body pre) {
   padding: 16px;
-  background-color: #f6f8fa;
+  background-color: var(--code-bg);
   border-radius: 6px;
 }
 </style>

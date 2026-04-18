@@ -53,10 +53,10 @@ onUnmounted(() => {
 <style scoped>
 .context-menu {
   position: fixed;
-  background: white;
-  border: 1px solid #e9ecef;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow);
   padding: 6px 0;
   min-width: 160px;
   z-index: 1000;
@@ -68,21 +68,21 @@ onUnmounted(() => {
   gap: 10px;
   padding: 8px 16px;
   font-size: 0.9rem;
-  color: #333;
+  color: var(--text-h);
   cursor: pointer;
   transition: background 0.1s;
 }
 
 .menu-item:hover {
-  background-color: #f8f9fa;
-  color: #007bff;
+  background-color: var(--accent-bg);
 }
 
 .menu-item svg {
-  color: #6c757d;
+  color: var(--text);
+  opacity: 0.6;
 }
 
 .menu-item:hover svg {
-  color: #007bff;
+  opacity: 1;
 }
 </style>
