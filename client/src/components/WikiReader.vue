@@ -59,8 +59,10 @@ watch(() => props.path, (newPath) => {
 <style scoped>
 .wiki-reader {
   max-width: 900px;
+  width: 100%;
   margin: 0 auto;
-  padding: 20px;
+  padding: 40px 20px;
+  box-sizing: border-box;
   position: relative;
 }
 

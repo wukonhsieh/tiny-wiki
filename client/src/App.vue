@@ -81,6 +81,7 @@ body {
 
 .main-content {
   flex: 1;
+  min-width: 0; /* 防止子元素撐破 Flex 容器 */
   overflow-y: auto;
   background-color: #fff;
   position: relative;

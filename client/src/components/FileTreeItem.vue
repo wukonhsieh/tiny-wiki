@@ -121,6 +121,7 @@ const handleDelete = (e) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-right: 8px;
 }
 .btn-delete {
   opacity: 0;

@@ -1,7 +1,7 @@
 # Todo List
 
 - [x] Task 1 - 前端 - 扁平化圖示替換與 Sidebar 清理
-- [ ] Task 2 - 前端 - 響應式佈局 (Responsive Layout)
+- [x] Task 2 - 前端 - 響應式佈局 (Responsive Layout)
 - [ ] Task 3 - 前端 - Markdown 標題自動擷取
 - [ ] Task 4 - 前端 - 頂部 Preview/Edit Toggle 切換
 - [ ] Task 5 - 前端 - 未儲存提示 (Notification Bar) 與快捷鍵
@@ -20,3 +20,15 @@
 ### Notes
 - 移除了 📁, 📄, 🗑️, 🔄 等 Emoji。
 - 引入了 Feather-style SVG 路徑。
+
+## Task 2 - 前端 - 響應式佈局 (Responsive Layout)
+### Summary
+優化了應用的響應式佈局，確保側邊欄與內容區域在不同桌面視窗寬度下皆能正確顯示。
+### Changed Files
+- tiny-wiki/client/src/App.vue
+- tiny-wiki/client/src/components/FileTreeItem.vue
+- tiny-wiki/client/src/components/WikiReader.vue
+- tiny-wiki/scratch/check_task_2_iter2.sh
+### Notes
+- 引入了 `min-width: 0` 確保 Flex 佈局穩定。
+- 實作了側邊欄檔名的自動截斷 (Ellipsis)。
