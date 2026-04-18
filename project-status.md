@@ -11,6 +11,7 @@
 - [x] Task 9 - 前端 - 大地色系調色盤套用 (Earthy Theme Application)
 - [x] Task 10 - 前端 - 頂級設計感字型整合 (Premium Typography Integration)
 - [x] Task 11 - 前端 - 介面細節調整與組件優化 (UI Refinement & Component Optimization)
+- [x] Task 12 - 文件 - Markdown 語法全攻略教學文件 (Markdown Guide Documentation)
 
 # Change Logs
 
@@ -147,3 +148,13 @@
 - **膠囊按鈕**：將 `Preview/Edit` 切換器的 `border-radius` 設定為 `25px`，營造出流暢的膠囊視覺感。
 - **標題輕量化**：將 `.page-header` 的底部分割線寬度縮減為 `1px`，降低對標題的過度強調，使頁面更清爽。
 - **配色整合**：同步更新了切換器的背景色與作用中狀態色，使其與大地色系主題完美融合。
+
+## Task 12 - 文件 - Markdown 語法全攻略教學文件 (Markdown Guide Documentation)
+### Summary
+建立了一份詳盡的 Markdown 語法教學文件，涵蓋了標題、列表、代碼塊、表格等所有 Tiny Wiki 支援的渲染功能，既可作為使用手冊，也可作為渲染效果的測試樣張。
+### Changed Files
+- tiny-wiki/repository/Markdown-Guide.md
+### Notes
+- 文件包含了 H1-H5 標題範例。
+- 展示了 GitHub 風格的任務列表 (Task Lists) 與代碼語法高亮。
+- 提供了表格與圖片的排版範例。
