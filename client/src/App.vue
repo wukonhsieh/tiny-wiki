@@ -98,7 +98,11 @@ const handleCancel = () => {
 
 <template>
   <div class="app-layout">
-    <Sidebar :selected-path="selectedFilePath" @select="handleSelect" />
+    <Sidebar 
+      :selected-path="selectedFilePath" 
+      :selected-repo="selectedRepo"
+      @select="handleSelect" 
+    />
     <main class="main-content">
       <!-- 頂部切換列 -->
       <div v-if="selectedFilePath && !is404" class="top-bar">

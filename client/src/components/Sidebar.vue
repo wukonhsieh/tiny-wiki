@@ -7,6 +7,10 @@ defineProps({
   selectedPath: {
     type: String,
     default: ''
+  },
+  selectedRepo: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -135,6 +139,7 @@ onMounted(fetchTree);
           :key="child.path" 
           :item="child"
           :selected-path="selectedPath"
+          :selected-repo="selectedRepo"
           @select="(path, repo) => $emit('select', path, repo)"
           @delete="(path, repo) => handleDelete(path, repo)"
           @contextmenu="handleContextMenu"
