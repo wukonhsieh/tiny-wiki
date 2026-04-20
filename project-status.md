@@ -1,5 +1,5 @@
 - [x] Task 1 - 後端支援多 Repo 路徑解析與驗證
-- [ ] Task 2 - 調整 Tree API 結構支援多根目錄
+- [x] Task 2 - 調整 Tree API 結構支援多根目錄
 - [ ] Task 3 - 升級其他 API Endpoint 支援多 Repo
 - [ ] Task 4 - 調整 Sidebar UI 呈現與全域右鍵攔截
 - [ ] Task 5 - 將新增檔案選單 (Context Menu) 綁定至特定節點
@@ -18,3 +18,17 @@
 ### Notes
 - 目前為了維持相容性，`GET /api/tree` 暫時只回傳第一個 Repo 的目錄樹，這將在 Task 2 中處理。
 - 加入了啟動時的路徑檢查，若有無效路徑會印出 Warning。
+
+## Task 2 - 調整 Tree API 結構支援多根目錄
+
+### Summary
+升級了目錄樹 API，支援將多個 Repositories 整合進單一 JSON 結構。
+
+### Changed Files
+- `server/index.js`
+- `scratch/task-2-harness.js` (Added)
+
+### Notes
+- 單一 Repo 模式下行為保持不變。
+- 多 Repo 模式下會自動生成虛擬 `root` 節點。
+- 每個 Repo 子樹的 root `path` 會包含其資料夾名稱作為前綴，例如 `/wiki-name/...`。

@@ -52,7 +52,7 @@ async function getTree(dirPath, relativePath = '') {
     }
     
     return {
-      name: relativePath === '' ? 'root' : name,
+      name: name,
       type: 'directory',
       path: relativePath === '' ? '/' : relativePath,
       children
@@ -77,9 +77,26 @@ function resolveSafePath(reqPath) {
 
 app.get('/api/tree', async (req, res) => {
   try {
-    // Task 1 保持回溯相容：若有多個 Repo，暫時回傳第一個
-    const tree = await getTree(REPO_PATHS[0]);
-    res.json(tree);
+    if (REPO_PATHS.length === 1) {
+      // 單一 Repo 模式：保持相容，回傳單一根目錄
+      const tree = await getTree(REPO_PATHS[0]);
+      res.json(tree);
+    } else {
+      // 多 Repo 模式：建立虛擬 root 節點
+      const children = [];
+      for (const repoPath of REPO_PATHS) {
+        const basename = path.basename(repoPath);
+        const subtree = await getTree(repoPath, basename);
+        if (subtree) children.push(subtree);
+      }
+      
+      res.json({
+        name: 'root',
+        type: 'directory',
+        path: '/',
+        children
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
