@@ -172,26 +172,42 @@ app.get('/api/hello', (req, res) => {
 
 // GET /api/resolve - 搜尋 Wikilink 對應的路徑
 app.get('/api/resolve', async (req, res) => {
-  const { name } = req.query;
+  const { name, repo } = req.query;
   if (!name) return res.status(400).json({ error: "Missing name" });
 
   try {
-    // 如果包含 '/'，直接嘗試解析路徑
+    const repoIndex = repo !== undefined ? parseInt(repo, 10) : null;
+
+    // 1. 如果包含 '/'，嘗試直接路徑解析
     if (name.includes('/')) {
-      const targetPath = name.endsWith('.md') ? name : `${name}.md`;
-      const fullPath = resolveSafePath(targetPath);
-      if (fullPath) {
-        try {
-          await fs.access(fullPath);
-          return res.json({ path: targetPath });
-        } catch (e) {
-          // 繼續往下走搜尋邏輯，或者報錯
+      const targetPaths = [name.endsWith('.md') ? name : `${name}.md`];
+      
+      // 相容性處理：如果提供了 repo 且路徑開頭剛好是該 repo 的名稱，嘗試去掉前綴
+      if (repoIndex !== null && repoIndex >= 0 && repoIndex < REPO_PATHS.length) {
+        const repoBasename = path.basename(REPO_PATHS[repoIndex]);
+        const segments = name.split('/');
+        if (segments[0] === repoBasename) {
+          const stripped = segments.slice(1).join('/');
+          targetPaths.push(stripped.endsWith('.md') ? stripped : `${stripped}.md`);
+        }
+      }
+
+      for (const tPath of targetPaths) {
+        // 如果有指定 repo，優先在該 repo 找；否則在第一個找
+        const fullPath = resolveSafePath(tPath, repoIndex !== null ? repoIndex : 0);
+        if (fullPath) {
+          try {
+            await fs.access(fullPath);
+            return res.json({ path: tPath, repo: repoIndex !== null ? repoIndex : 0 });
+          } catch (e) {
+            // 繼續嘗試下一個可能
+          }
         }
       }
     }
 
-    // 遞迴搜尋符合檔名的第一個檔案
-    async function findFile(dir, currentRelativePath, repoIndex) {
+    // 2. 遞迴搜尋符合檔名的第一個檔案
+    async function findFile(dir, currentRelativePath, repoIdx) {
       const files = await fs.readdir(dir);
       for (const file of files) {
         if (file.startsWith('.') || file === 'node_modules') continue;
@@ -199,20 +215,30 @@ app.get('/api/resolve', async (req, res) => {
         const childRelativePath = path.join(currentRelativePath, file);
         const stats = await fs.stat(fullPath);
         if (stats.isDirectory()) {
-          const found = await findFile(fullPath, childRelativePath, repoIndex);
+          const found = await findFile(fullPath, childRelativePath, repoIdx);
           if (found) return found;
         } else if (file === name || file === `${name}.md`) {
-          return { path: childRelativePath, repo: repoIndex };
+          return { path: childRelativePath, repo: repoIdx };
         }
       }
       return null;
     }
 
     let result = null;
-    for (let i = 0; i < REPO_PATHS.length; i++) {
-      result = await findFile(REPO_PATHS[i], '', i);
-      if (result) break;
+    // 優先搜尋指定的 repo
+    if (repoIndex !== null && repoIndex >= 0 && repoIndex < REPO_PATHS.length) {
+      result = await findFile(REPO_PATHS[repoIndex], '', repoIndex);
     }
+    
+    // 若沒找到，再全域搜尋其他 repo
+    if (!result) {
+      for (let i = 0; i < REPO_PATHS.length; i++) {
+        if (i === repoIndex) continue;
+        result = await findFile(REPO_PATHS[i], '', i);
+        if (result) break;
+      }
+    }
+
     if (result) {
       res.json(result);
     } else {
