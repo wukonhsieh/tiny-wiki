@@ -3,6 +3,7 @@
 - [x] Task 3 - 升級其他 API Endpoint 支援多 Repo
 - [x] Task 4 - 調整 Sidebar UI 呈現與全域右鍵攔截
 - [x] Task 5 - 將新增檔案選單 (Context Menu) 綁定至特定節點
+- [x] Task 6 - 實作 Repo 參數化管理與 Bug 修復
 
 # Change Logs
 
@@ -70,3 +71,21 @@
 ### Notes
 - 移除了檔案節點右鍵限制。
 - 實作了自動父目錄識別邏輯。
+
+## Task 6 - 實作 Repo 參數化管理與 Bug 修復
+
+### Summary
+根據使用者回饋修復了單 Repo 模式下的 404 路徑 Bug，並將多 Repo 識別機制重構為基於 `repo` ID 參數的穩定架構，徹底解決名稱衝突。
+
+### Changed Files
+- `server/index.js`
+- `client/src/App.vue`
+- `client/src/components/Sidebar.vue`
+- `client/src/components/FileTreeItem.vue`
+- `client/src/components/WikiReader.vue`
+- `client/src/components/WikiEditor.vue`
+
+### Notes
+- 引入了 `repo=N` 查詢參數。
+- 移除了所有路徑中的強制 Basename 前綴。
+- 確保了與單 Repo 的 100% 向下相容。

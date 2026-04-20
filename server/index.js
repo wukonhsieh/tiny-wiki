@@ -24,7 +24,7 @@ const REPO_PATHS = rawRepoPaths.split(',').map(p => path.resolve(p.trim()));
   }
 })();
 
-async function getTree(dirPath, relativePath = '') {
+async function getTree(dirPath, relativePath = '', repoIndex = 0) {
   const name = path.basename(dirPath) || 'root';
   const stats = await fs.stat(dirPath);
   
@@ -40,13 +40,14 @@ async function getTree(dirPath, relativePath = '') {
       const childStats = await fs.stat(fullPath);
       
       if (childStats.isDirectory()) {
-        const subtree = await getTree(fullPath, childRelativePath);
+        const subtree = await getTree(fullPath, childRelativePath, repoIndex);
         if (subtree) children.push(subtree);
       } else if (file.endsWith('.md')) {
         children.push({
           name: file,
           type: 'file',
-          path: childRelativePath
+          path: childRelativePath,
+          repo: repoIndex
         });
       }
     }
@@ -55,6 +56,7 @@ async function getTree(dirPath, relativePath = '') {
       name: name,
       type: 'directory',
       path: relativePath === '' ? '/' : relativePath,
+      repo: repoIndex,
       children
     };
   }
@@ -62,15 +64,16 @@ async function getTree(dirPath, relativePath = '') {
 }
 
 // 輔助函數：驗證路徑安全性
-function resolveSafePath(reqPath) {
+function resolveSafePath(reqPath, repoIndex = 0) {
   if (!reqPath) return null;
   
-  // 遍歷所有合法的 Repository 絕對路徑進行驗證
-  for (const repo of REPO_PATHS) {
-    const fullPath = path.resolve(repo, reqPath);
-    if (fullPath.startsWith(repo)) {
-      return fullPath;
-    }
+  const index = parseInt(repoIndex, 10);
+  if (isNaN(index) || index < 0 || index >= REPO_PATHS.length) return null;
+  
+  const repo = REPO_PATHS[index];
+  const fullPath = path.resolve(repo, reqPath);
+  if (fullPath.startsWith(repo)) {
+    return fullPath;
   }
   return null;
 }
@@ -78,15 +81,14 @@ function resolveSafePath(reqPath) {
 app.get('/api/tree', async (req, res) => {
   try {
     if (REPO_PATHS.length === 1) {
-      // 單一 Repo 模式：保持相容，回傳單一根目錄
-      const tree = await getTree(REPO_PATHS[0]);
+      const tree = await getTree(REPO_PATHS[0], '', 0);
       res.json(tree);
     } else {
-      // 多 Repo 模式：建立虛擬 root 節點
       const children = [];
-      for (const repoPath of REPO_PATHS) {
-        const basename = path.basename(repoPath);
-        const subtree = await getTree(repoPath, basename);
+      for (let i = 0; i < REPO_PATHS.length; i++) {
+        const repoPath = REPO_PATHS[i];
+        // 多 Repo 模式下，每個 Repo 的根節點相對路徑從空字串開始，避免前綴衝突
+        const subtree = await getTree(repoPath, '', i);
         if (subtree) children.push(subtree);
       }
       
@@ -94,6 +96,7 @@ app.get('/api/tree', async (req, res) => {
         name: 'root',
         type: 'directory',
         path: '/',
+        repo: -1, // 虛擬根節點不屬於任何 repo
         children
       });
     }
@@ -104,7 +107,7 @@ app.get('/api/tree', async (req, res) => {
 
 // GET /api/file - 讀取內容
 app.get('/api/file', async (req, res) => {
-  const fullPath = resolveSafePath(req.query.path);
+  const fullPath = resolveSafePath(req.query.path, req.query.repo);
   if (!fullPath) return res.status(400).json({ error: "Invalid path" });
 
   try {
@@ -118,8 +121,8 @@ app.get('/api/file', async (req, res) => {
 
 // POST /api/file - 儲存內容
 app.post('/api/file', async (req, res) => {
-  const { path: reqPath, content } = req.body;
-  const fullPath = resolveSafePath(reqPath);
+  const { path: reqPath, content, repo } = req.body;
+  const fullPath = resolveSafePath(reqPath, repo);
   if (!fullPath) return res.status(400).json({ error: "Invalid path" });
 
   try {
@@ -133,7 +136,7 @@ app.post('/api/file', async (req, res) => {
 
 // DELETE /api/file - 刪除項目
 app.delete('/api/file', async (req, res) => {
-  const fullPath = resolveSafePath(req.query.path);
+  const fullPath = resolveSafePath(req.query.path, req.query.repo);
   if (!fullPath) return res.status(400).json({ error: "Invalid path" });
 
   try {
@@ -151,8 +154,8 @@ app.delete('/api/file', async (req, res) => {
 
 // POST /api/directory - 建立資料夾
 app.post('/api/directory', async (req, res) => {
-  const { path: reqPath } = req.body;
-  const fullPath = resolveSafePath(reqPath);
+  const { path: reqPath, repo } = req.body;
+  const fullPath = resolveSafePath(reqPath, repo);
   if (!fullPath) return res.status(400).json({ error: "Invalid path" });
 
   try {
@@ -188,7 +191,7 @@ app.get('/api/resolve', async (req, res) => {
     }
 
     // 遞迴搜尋符合檔名的第一個檔案
-    async function findFile(dir, currentRelativePath) {
+    async function findFile(dir, currentRelativePath, repoIndex) {
       const files = await fs.readdir(dir);
       for (const file of files) {
         if (file.startsWith('.') || file === 'node_modules') continue;
@@ -196,23 +199,22 @@ app.get('/api/resolve', async (req, res) => {
         const childRelativePath = path.join(currentRelativePath, file);
         const stats = await fs.stat(fullPath);
         if (stats.isDirectory()) {
-          const found = await findFile(fullPath, childRelativePath);
+          const found = await findFile(fullPath, childRelativePath, repoIndex);
           if (found) return found;
         } else if (file === name || file === `${name}.md`) {
-          return childRelativePath;
+          return { path: childRelativePath, repo: repoIndex };
         }
       }
       return null;
     }
 
-    let foundPath = null;
-    for (const repoPath of REPO_PATHS) {
-      const basename = path.basename(repoPath);
-      foundPath = await findFile(repoPath, basename);
-      if (foundPath) break;
+    let result = null;
+    for (let i = 0; i < REPO_PATHS.length; i++) {
+      result = await findFile(REPO_PATHS[i], '', i);
+      if (result) break;
     }
-    if (foundPath) {
-      res.json({ path: foundPath });
+    if (result) {
+      res.json(result);
     } else {
       res.status(404).json({ error: "File not found" });
     }

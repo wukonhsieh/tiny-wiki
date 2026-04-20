@@ -12,10 +12,12 @@ const selectedFilePath = ref('');
 const isEditing = ref(false);
 const isDirty = ref(false);
 const is404 = ref(false);
+const selectedRepo = ref(0);
 
-const resolveAndLoad = async (wikiPath) => {
+const resolveAndLoad = async (wikiPath, repoIndex = 0) => {
   // Reset states
   is404.value = false;
+  selectedRepo.value = repoIndex;
   
   let name = '';
   if (Array.isArray(wikiPath)) {
@@ -29,10 +31,11 @@ const resolveAndLoad = async (wikiPath) => {
 
   if (isRoot) {
     try {
-      const res = await fetch(`/api/resolve?name=index.md`);
+      const res = await fetch(`/api/resolve?name=index.md&repo=${repoIndex}`);
       if (res.ok) {
         const data = await res.json();
         selectedFilePath.value = data.path;
+        selectedRepo.value = data.repo !== undefined ? data.repo : repoIndex;
       } else {
         selectedFilePath.value = '';
       }
@@ -43,10 +46,11 @@ const resolveAndLoad = async (wikiPath) => {
   }
 
   try {
-    const res = await fetch(`/api/resolve?name=${encodeURIComponent(name)}`);
+    const res = await fetch(`/api/resolve?name=${encodeURIComponent(name)}&repo=${repoIndex}`);
     if (res.ok) {
       const data = await res.json();
       selectedFilePath.value = data.path;
+      selectedRepo.value = data.repo !== undefined ? data.repo : repoIndex;
     } else {
       is404.value = true;
       selectedFilePath.value = name;
@@ -58,24 +62,24 @@ const resolveAndLoad = async (wikiPath) => {
 };
 
 
-watch(() => route.params.wikiPath, (newPath) => {
+watch(() => [route.params.wikiPath, route.query.repo], ([newPath, newRepo]) => {
   if (isEditing.value && isDirty.value) {
     // If we are editing and dirty, we might have been triggered by browser back/forward
-    // For simplicity, we just reload, but in a real app we might want to prevent navigation
   }
-  resolveAndLoad(newPath);
+  const repoIdx = newRepo !== undefined ? parseInt(newRepo, 10) : 0;
+  resolveAndLoad(newPath, repoIdx);
 }, { immediate: true });
 
-const handleSelect = (path) => {
+const handleSelect = (path, repo = 0) => {
   if (isEditing.value && isDirty.value) {
     if (!confirm('You have unsaved changes. Discard and switch page?')) {
       return;
     }
   }
   
-  // Navigate to clean URL
+  // Navigate to clean URL with repo param
   let cleanUrl = '/' + path.replace(/\.md$/, '');
-  router.push(cleanUrl);
+  router.push({ path: cleanUrl, query: { repo } });
   
   isEditing.value = false;
   isDirty.value = false;
@@ -127,6 +131,7 @@ const handleCancel = () => {
           <WikiEditor 
             v-if="isEditing" 
             :path="selectedFilePath" 
+            :repo="selectedRepo"
             @save="handleSave"
             @cancel="handleCancel"
             @dirty-change="val => isDirty = val"
@@ -134,6 +139,7 @@ const handleCancel = () => {
           <WikiReader 
             v-else 
             :path="selectedFilePath" 
+            :repo="selectedRepo"
             @select="handleSelect"
           />
         </div>

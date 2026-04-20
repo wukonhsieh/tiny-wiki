@@ -7,6 +7,10 @@ const props = defineProps({
   path: {
     type: String,
     required: true
+  },
+  repo: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -22,10 +26,10 @@ const handleLinkClick = async (event) => {
   if (isWikilink) {
     event.preventDefault();
     try {
-      const res = await fetch(`/api/resolve?name=${encodeURIComponent(href)}`);
+      const res = await fetch(`/api/resolve?name=${encodeURIComponent(href)}&repo=${props.repo}`);
       if (res.ok) {
         const data = await res.json();
-        emit('select', data.path);
+        emit('select', data.path, data.repo !== undefined ? data.repo : props.repo);
       } else {
         console.warn('Wikilink resolution failed:', href);
         // 如果找不到，可以考慮給個視覺提示，但目前先不跳 alert 以免干擾
@@ -46,7 +50,7 @@ const handleLinkClick = async (event) => {
       cleanPath = `${currentDir}/${cleanPath}`;
     }
     
-    emit('select', cleanPath);
+    emit('select', cleanPath, props.repo);
   }
 };
 
@@ -75,7 +79,7 @@ const removeTag = async (key, index) => {
     const res = await fetch('/api/file', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path: props.path, content: fullContent })
+      body: JSON.stringify({ path: props.path, content: fullContent, repo: props.repo })
     });
     if (!res.ok) throw new Error('Failed to update frontmatter');
   } catch (err) {
@@ -91,7 +95,7 @@ const fetchFileContent = async (filePath) => {
   error.value = null;
   
   try {
-    const response = await fetch(`/api/file?path=${encodeURIComponent(filePath)}`);
+    const response = await fetch(`/api/file?path=${encodeURIComponent(filePath)}&repo=${props.repo}`);
     if (!response.ok) throw new Error('File not found or server error');
     
     const data = await response.json();
@@ -142,7 +146,7 @@ const fetchFileContent = async (filePath) => {
 };
 
 
-watch(() => props.path, (newPath) => {
+watch(() => [props.path, props.repo], ([newPath]) => {
   fetchFileContent(newPath);
 }, { immediate: true });
 

@@ -7,6 +7,10 @@ const props = defineProps({
   path: {
     type: String,
     required: true
+  },
+  repo: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -37,7 +41,7 @@ watch(isDirty, (val) => {
 const fetchContent = async () => {
   loading.value = true;
   try {
-    const response = await fetch(`/api/file?path=${encodeURIComponent(props.path)}`);
+    const response = await fetch(`/api/file?path=${encodeURIComponent(props.path)}&repo=${props.repo}`);
     if (!response.ok) throw new Error('Failed to load file');
     const data = await response.json();
     rawContent.value = data.content;
@@ -58,7 +62,8 @@ const handleSave = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         path: props.path,
-        content: rawContent.value
+        content: rawContent.value,
+        repo: props.repo
       })
     });
     if (!response.ok) throw new Error('Save failed');
