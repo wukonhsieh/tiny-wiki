@@ -1,7 +1,7 @@
 - [x] Task 1 - 後端支援多 Repo 路徑解析與驗證
 - [x] Task 2 - 調整 Tree API 結構支援多根目錄
 - [x] Task 3 - 升級其他 API Endpoint 支援多 Repo
-- [ ] Task 4 - 調整 Sidebar UI 呈現與全域右鍵攔截
+- [x] Task 4 - 調整 Sidebar UI 呈現與全域右鍵攔截
 - [ ] Task 5 - 將新增檔案選單 (Context Menu) 綁定至特定節點
 
 # Change Logs
@@ -45,3 +45,15 @@
 ### Notes
 - 採用順序遍歷優先級。
 - 回傳路徑已標準化，包含 Repo Basename 前綴。
+
+## Task 4 - 調整 Sidebar UI 呈現與全域右鍵攔截
+
+### Summary
+實作了前端 Sidebar 的多 Repo 偵測邏輯，並在多 Repo 模式下封鎖了側邊欄空白處的全域右鍵選單。
+
+### Changed Files
+- `client/src/components/Sidebar.vue`
+
+### Notes
+- 引入了 `isMultiRepo` 計算屬性。
+- 修改了 `@contextmenu` 事件的動態觸發邏輯。

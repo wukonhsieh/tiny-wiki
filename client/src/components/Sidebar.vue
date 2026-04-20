@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import FileTreeItem from './FileTreeItem.vue';
 import ContextMenu from './ContextMenu.vue';
 
@@ -15,6 +15,8 @@ const emit = defineEmits(['select']);
 const treeData = ref(null);
 const loading = ref(true);
 const error = ref(null);
+
+const isMultiRepo = computed(() => treeData.value?.name === 'root' && treeData.value?.path === '/');
 
 // Context Menu State
 const contextMenu = ref({
@@ -121,7 +123,7 @@ onMounted(fetchTree);
     <div class="sidebar-header">
       <h2>Tiny Wiki</h2>
     </div>
-    <div class="sidebar-content" @contextmenu.prevent.stop="e => handleContextMenu({ e, path: '' })">
+    <div class="sidebar-content" @contextmenu.prevent.stop="e => isMultiRepo ? null : handleContextMenu({ e, path: '' })">
       <div v-if="loading && !treeData" class="state-msg">Loading...</div>
       <div v-else-if="error" class="state-msg error">{{ error }}</div>
       <div v-else-if="treeData" class="tree-container">
