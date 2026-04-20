@@ -9,7 +9,20 @@ const fs = require('fs').promises;
 app.use(cors());
 app.use(express.json());
 
-const REPO_PATH = process.env.REPO_PATH || path.join(__dirname, '../repository');
+const rawRepoPaths = process.env.REPO_PATH || path.join(__dirname, '../repository');
+const REPO_PATHS = rawRepoPaths.split(',').map(p => path.resolve(p.trim()));
+
+// 啟動時驗證路徑有效性
+(async () => {
+  for (const repo of REPO_PATHS) {
+    try {
+      await fs.access(repo);
+      console.log(`[INFO] Repository loaded: ${repo}`);
+    } catch (e) {
+      console.warn(`[WARNING] Repository path not found or inaccessible: ${repo}`);
+    }
+  }
+})();
 
 async function getTree(dirPath, relativePath = '') {
   const name = path.basename(dirPath) || 'root';
@@ -51,17 +64,21 @@ async function getTree(dirPath, relativePath = '') {
 // 輔助函數：驗證路徑安全性
 function resolveSafePath(reqPath) {
   if (!reqPath) return null;
-  // 使用 path.resolve 取得絕對路徑，並比對是否在 REPO_PATH 內
-  const fullPath = path.resolve(REPO_PATH, reqPath);
-  if (!fullPath.startsWith(REPO_PATH)) {
-    return null;
+  
+  // 遍歷所有合法的 Repository 絕對路徑進行驗證
+  for (const repo of REPO_PATHS) {
+    const fullPath = path.resolve(repo, reqPath);
+    if (fullPath.startsWith(repo)) {
+      return fullPath;
+    }
   }
-  return fullPath;
+  return null;
 }
 
 app.get('/api/tree', async (req, res) => {
   try {
-    const tree = await getTree(REPO_PATH);
+    // Task 1 保持回溯相容：若有多個 Repo，暫時回傳第一個
+    const tree = await getTree(REPO_PATHS[0]);
     res.json(tree);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -164,13 +181,13 @@ app.get('/api/resolve', async (req, res) => {
           const found = await findFile(fullPath);
           if (found) return found;
         } else if (file === name || file === `${name}.md`) {
-          return path.relative(REPO_PATH, fullPath);
+          return path.relative(REPO_PATHS[0], fullPath);
         }
       }
       return null;
     }
 
-    const foundPath = await findFile(REPO_PATH);
+    const foundPath = await findFile(REPO_PATHS[0]);
     if (foundPath) {
       res.json({ path: foundPath });
     } else {
