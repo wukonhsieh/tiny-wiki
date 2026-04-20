@@ -61,8 +61,9 @@ const createNewFile = async (targetDir = '') => {
   const name = prompt('Enter new file name (e.g., page.md):');
   if (!name) return;
   
+  const actualDir = targetDir.endsWith('.md') ? targetDir.split('/').slice(0, -1).join('/') : targetDir;
   const fileName = name.endsWith('.md') ? name : `${name}.md`;
-  const prefix = (targetDir && targetDir !== '/') ? `${targetDir}/` : '';
+  const prefix = (actualDir && actualDir !== '/') ? `${actualDir}/` : '';
   const fullPath = `${prefix}${fileName}`;
   
   try {
@@ -83,7 +84,8 @@ const createNewFolder = async (targetDir = '') => {
   const name = prompt('Enter new folder name:');
   if (!name) return;
   
-  const prefix = (targetDir && targetDir !== '/') ? `${targetDir}/` : '';
+  const actualDir = targetDir.endsWith('.md') ? targetDir.split('/').slice(0, -1).join('/') : targetDir;
+  const prefix = (actualDir && actualDir !== '/') ? `${actualDir}/` : '';
   const fullPath = `${prefix}${name}`;
   
   try {

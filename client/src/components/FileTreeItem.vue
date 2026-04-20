@@ -39,9 +39,7 @@ const handleDelete = (e) => {
 
 const onLabelContextMenu = (e) => {
   e.stopPropagation();
-  if (props.item.type === 'directory') {
-    emit('contextmenu', { e, path: props.item.path });
-  }
+  emit('contextmenu', { e, path: props.item.path, type: props.item.type });
 };
 </script>
 

@@ -2,7 +2,7 @@
 - [x] Task 2 - 調整 Tree API 結構支援多根目錄
 - [x] Task 3 - 升級其他 API Endpoint 支援多 Repo
 - [x] Task 4 - 調整 Sidebar UI 呈現與全域右鍵攔截
-- [ ] Task 5 - 將新增檔案選單 (Context Menu) 綁定至特定節點
+- [x] Task 5 - 將新增檔案選單 (Context Menu) 綁定至特定節點
 
 # Change Logs
 
@@ -57,3 +57,16 @@
 ### Notes
 - 引入了 `isMultiRepo` 計算屬性。
 - 修改了 `@contextmenu` 事件的動態觸發邏輯。
+
+## Task 5 - 將新增檔案選單 (Context Menu) 綁定至特定節點
+
+### Summary
+完成了前端新增功能的精確綁定，支援在特定的 Repository 或目錄下建立內容。
+
+### Changed Files
+- `client/src/components/FileTreeItem.vue`
+- `client/src/components/Sidebar.vue`
+
+### Notes
+- 移除了檔案節點右鍵限制。
+- 實作了自動父目錄識別邏輯。
