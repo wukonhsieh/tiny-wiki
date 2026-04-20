@@ -188,23 +188,29 @@ app.get('/api/resolve', async (req, res) => {
     }
 
     // 遞迴搜尋符合檔名的第一個檔案
-    async function findFile(dir) {
+    async function findFile(dir, currentRelativePath) {
       const files = await fs.readdir(dir);
       for (const file of files) {
         if (file.startsWith('.') || file === 'node_modules') continue;
         const fullPath = path.join(dir, file);
+        const childRelativePath = path.join(currentRelativePath, file);
         const stats = await fs.stat(fullPath);
         if (stats.isDirectory()) {
-          const found = await findFile(fullPath);
+          const found = await findFile(fullPath, childRelativePath);
           if (found) return found;
         } else if (file === name || file === `${name}.md`) {
-          return path.relative(REPO_PATHS[0], fullPath);
+          return childRelativePath;
         }
       }
       return null;
     }
 
-    const foundPath = await findFile(REPO_PATHS[0]);
+    let foundPath = null;
+    for (const repoPath of REPO_PATHS) {
+      const basename = path.basename(repoPath);
+      foundPath = await findFile(repoPath, basename);
+      if (foundPath) break;
+    }
     if (foundPath) {
       res.json({ path: foundPath });
     } else {
