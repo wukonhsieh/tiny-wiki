@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import Sidebar from './components/Sidebar.vue';
 import WikiReader from './components/WikiReader.vue';
@@ -62,13 +62,19 @@ const resolveAndLoad = async (wikiPath, repoIndex = 0) => {
 };
 
 
+// 初始載入：等 router 完成第一次 navigation 後再讀 params，
+// 避免 immediate watch 在 router 尚未解析時拿到空 params 而誤載 index.md
+onMounted(async () => {
+  await router.isReady();
+  const repoIdx = route.query.repo !== undefined ? parseInt(route.query.repo, 10) : 0;
+  resolveAndLoad(route.params.wikiPath, repoIdx);
+});
+
+// 後續導航（使用者點擊連結、sidebar 等）
 watch(() => [route.params.wikiPath, route.query.repo], ([newPath, newRepo]) => {
-  if (isEditing.value && isDirty.value) {
-    // If we are editing and dirty, we might have been triggered by browser back/forward
-  }
   const repoIdx = newRepo !== undefined ? parseInt(newRepo, 10) : 0;
   resolveAndLoad(newPath, repoIdx);
-}, { immediate: true });
+});
 
 const handleSelect = (path, repo = 0) => {
   if (isEditing.value && isDirty.value) {
