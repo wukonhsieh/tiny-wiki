@@ -1,6 +1,7 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { renderMarkdown } from '../utils/markdown';
+import { patchEmbeds } from '../utils/embedPatcher';
 import 'highlight.js/styles/github.css';
 
 const props = defineProps({
@@ -137,6 +138,13 @@ const fetchFileContent = async (filePath) => {
     
     const bodyContent = lines.join('\n');
     renderedHtml.value = renderMarkdown(bodyContent);
+
+    // 等待 Vue 將 renderedHtml 更新至 DOM，再執行 embed placeholder 的非同步 patch
+    await nextTick();
+    const markdownBody = document.querySelector('.markdown-body');
+    if (markdownBody) {
+      patchEmbeds(markdownBody, props.repo);
+    }
   } catch (err) {
     error.value = err.message;
     renderedHtml.value = '';
