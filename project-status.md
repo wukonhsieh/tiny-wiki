@@ -2,7 +2,7 @@
 
 - [x] Task 1 - 建立 `![[...]]` embed 語法解析器
 - [x] Task 2 - 實作圖片與影片 embed 非同步渲染
-- [ ] Task 3 - 實作 Note Heading Callout、下載連結與整體 embed 樣式
+- [x] Task 3 - 實作 Note Heading Callout、下載連結與整體 embed 樣式
 
 # Change Logs
 
@@ -40,3 +40,18 @@
 
 - CSS 樣式（`.embed-image`、`.embed-video`、`.embed-broken`、`.embed-callout`、`.embed-download`）留待 Task 3
 - `fetchFn` 可注入設計讓測試完全不依賴網路，方便 CI 執行
+
+## Task 3 - 實作 Note Heading Callout、下載連結與整體 embed 樣式
+
+### Summary
+
+在 `WikiReader.vue` 的 `<style scoped>` 中新增所有 embed 類型的 CSS 樣式，沿用專案既有 CSS 變數體系。圖片與影片以 block 顯示並限制最大寬度；callout 以左側 accent border 與淺色背景提供視覺區隔；下載連結沿用 wikilink 棕色色系；broken embed 以灰色虛線框提示。Regression 22 tests 全數通過。
+
+### Changed Files
+
+- `client/src/components/WikiReader.vue` — 新增 embed 相關 CSS（`.embed-image`、`.embed-video`、`.embed-callout`、`.embed-download`、`.embed-broken`）
+
+### Notes
+
+- AC-4（callout wikilink 跳轉）依賴現有 `handleLinkClick` 的 `data-wikilink="true"` 攔截，無需額外程式碼，需手動於瀏覽器確認
+- 所有 embed 樣式已使用 `:deep(...)` 以正確穿透 Vue scoped CSS

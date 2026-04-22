@@ -345,4 +345,72 @@ watch(() => [props.path, props.repo], ([newPath]) => {
   font-size: 100%;
 }
 
+/* ── Embed Styles ─────────────────────────────────────────────────────────── */
+
+/* 圖片 embed */
+:deep(.embed-image) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1em 0;
+  border-radius: 6px;
+}
+
+/* 影片 embed */
+:deep(.embed-video) {
+  display: block;
+  max-width: 100%;
+  margin: 1em 0;
+  border-radius: 6px;
+  background-color: #000;
+}
+
+/* Note heading callout embed */
+:deep(.embed-callout) {
+  display: block;
+  margin: 1em 0;
+  padding: 10px 16px;
+  border-left: 3px solid var(--accent);
+  background-color: var(--accent-bg);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.95rem;
+  color: var(--text-h);
+}
+
+/* 下載連結 embed（沿用 wikilink 顏色體系） */
+:deep(.embed-download) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #a67c52;
+  text-decoration: none;
+  border-bottom: 1px dashed #a67c52;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+:deep(.embed-download)::before {
+  content: '📎';
+  font-size: 0.9em;
+}
+
+:deep(.embed-download):hover {
+  background-color: var(--accent-bg);
+  border-bottom-style: solid;
+}
+
+/* Broken embed 佔位提示 */
+:deep(.embed-broken) {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: var(--code-bg);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  opacity: 0.6;
+  font-size: 0.85rem;
+  font-family: var(--mono);
+  margin: 2px 0;
+}
+
 </style>
