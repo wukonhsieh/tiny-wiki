@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { renderMarkdown } from '../utils/markdown';
+import { patchEmbeds } from '../utils/embedPatcher';
 import 'highlight.js/styles/github.css';
 
 const props = defineProps({
@@ -21,6 +22,7 @@ const originalContent = ref('');
 const loading = ref(true);
 const saving = ref(false);
 const error = ref(null);
+const previewBodyRef = ref(null);
 
 const renderedHtml = computed(() => {
   let bodyStr = rawContent.value;
@@ -36,6 +38,14 @@ const isDirty = computed(() => rawContent.value !== originalContent.value);
 watch(isDirty, (val) => {
   emit('dirtyChange', val);
 }, { immediate: true });
+
+// 每次 preview 內容更新後，等 Vue re-render 再執行 embed patch
+watch(renderedHtml, async () => {
+  await nextTick();
+  if (previewBodyRef.value) {
+    patchEmbeds(previewBodyRef.value, props.repo);
+  }
+});
 
 
 const fetchContent = async () => {
@@ -138,7 +148,7 @@ onUnmounted(() => {
         ></textarea>
       </div>
       <div class="preview-pane">
-        <div class="markdown-body" v-html="renderedHtml"></div>
+        <div ref="previewBodyRef" class="markdown-body" v-html="renderedHtml"></div>
       </div>
     </div>
   </div>
@@ -336,6 +346,69 @@ textarea {
   padding: 0;
   background-color: transparent;
   font-size: 100%;
+}
+
+/* ── Embed Styles ─────────────────────────────────────────────────────────── */
+
+:deep(.embed-image) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1em 0;
+  border-radius: 6px;
+}
+
+:deep(.embed-video) {
+  display: block;
+  max-width: 100%;
+  margin: 1em 0;
+  border-radius: 6px;
+  background-color: #000;
+}
+
+:deep(.embed-callout) {
+  display: block;
+  margin: 1em 0;
+  padding: 10px 16px;
+  border-left: 3px solid var(--accent);
+  background-color: var(--accent-bg);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.95rem;
+  color: var(--text-h);
+}
+
+:deep(.embed-download) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #a67c52;
+  text-decoration: none;
+  border-bottom: 1px dashed #a67c52;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+:deep(.embed-download)::before {
+  content: '📎';
+  font-size: 0.9em;
+}
+
+:deep(.embed-download):hover {
+  background-color: var(--accent-bg);
+  border-bottom-style: solid;
+}
+
+:deep(.embed-broken) {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: var(--code-bg);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  opacity: 0.6;
+  font-size: 0.85rem;
+  font-family: var(--mono);
+  margin: 2px 0;
 }
 
 </style>
