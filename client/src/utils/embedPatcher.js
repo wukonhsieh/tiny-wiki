@@ -69,7 +69,8 @@ export async function patchEmbeds(container, repo, fetchFn = fetch) {
         if (!res.ok) throw new Error('resolve failed');
 
         const data = await res.json();
-        const url = `/api/file?path=${encodeURIComponent(data.path)}&repo=${data.repo}`;
+        // 使用 /api/raw 讓 browser 以正確 MIME type 載入二進位資源（圖片、影片等）
+        const url = `/api/raw?path=${encodeURIComponent(data.path)}&repo=${data.repo}`;
         const { width, height } = parseSize(size);
 
         let el;

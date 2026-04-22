@@ -54,7 +54,7 @@ describe('patchEmbeds - image', () => {
 
     const img = container.querySelector('img.embed-image');
     expect(img).not.toBeNull();
-    expect(img.src).toContain('/api/file?path=');
+    expect(img.src).toContain('/api/raw?path=');
     expect(img.src).toContain('images%2Fphoto.jpg');
     expect(container.querySelector('.embed-placeholder')).toBeNull();
   });
@@ -90,7 +90,7 @@ describe('patchEmbeds - video', () => {
     expect(video.controls).toBe(true);
     const source = video.querySelector('source');
     expect(source).not.toBeNull();
-    expect(source.src).toContain('/api/file?path=');
+    expect(source.src).toContain('/api/raw?path=');
     expect(container.querySelector('.embed-placeholder')).toBeNull();
   });
 

@@ -119,6 +119,20 @@ app.get('/api/file', async (req, res) => {
   }
 });
 
+// GET /api/raw - 以正確 MIME type 回傳二進位或文字資源（供圖片、影片等 embed 使用）
+app.get('/api/raw', async (req, res) => {
+  const fullPath = resolveSafePath(req.query.path, req.query.repo);
+  if (!fullPath) return res.status(400).json({ error: "Invalid path" });
+
+  try {
+    await fs.access(fullPath);
+    res.sendFile(fullPath);
+  } catch (error) {
+    if (error.code === 'ENOENT') return res.status(404).json({ error: "File not found" });
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST /api/file - 儲存內容
 app.post('/api/file', async (req, res) => {
   const { path: reqPath, content, repo } = req.body;
@@ -180,14 +194,22 @@ app.get('/api/resolve', async (req, res) => {
 
     // 1. 如果包含 '/'，嘗試直接路徑解析
     if (name.includes('/')) {
-      const targetPaths = [name.endsWith('.md') ? name : `${name}.md`];
-      
+      // 非 .md 檔案（圖片、影片等）優先嘗試原始路徑；.md 或無副檔名則嘗試加 .md
+      const targetPaths = [];
+      if (name.endsWith('.md')) {
+        targetPaths.push(name);
+      } else {
+        targetPaths.push(name);           // 先嘗試完整路徑（圖片、影片等）
+        targetPaths.push(`${name}.md`);   // 再嘗試加 .md（無副檔名的 note 連結）
+      }
+
       // 相容性處理：如果提供了 repo 且路徑開頭剛好是該 repo 的名稱，嘗試去掉前綴
       if (repoIndex !== null && repoIndex >= 0 && repoIndex < REPO_PATHS.length) {
         const repoBasename = path.basename(REPO_PATHS[repoIndex]);
         const segments = name.split('/');
         if (segments[0] === repoBasename) {
           const stripped = segments.slice(1).join('/');
+          if (!stripped.endsWith('.md')) targetPaths.push(stripped);
           targetPaths.push(stripped.endsWith('.md') ? stripped : `${stripped}.md`);
         }
       }

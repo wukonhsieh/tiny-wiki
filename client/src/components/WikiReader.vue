@@ -63,6 +63,7 @@ const loading = ref(false);
 const error = ref(null);
 const frontmatter = ref({});
 const rawBodyContent = ref('');
+const markdownBodyRef = ref(null);
 
 const removeTag = async (key, index) => {
   if (!frontmatter.value[key] || !Array.isArray(frontmatter.value[key])) return;
@@ -138,18 +139,20 @@ const fetchFileContent = async (filePath) => {
     
     const bodyContent = lines.join('\n');
     renderedHtml.value = renderMarkdown(bodyContent);
-
-    // 等待 Vue 將 renderedHtml 更新至 DOM，再執行 embed placeholder 的非同步 patch
-    await nextTick();
-    const markdownBody = document.querySelector('.markdown-body');
-    if (markdownBody) {
-      patchEmbeds(markdownBody, props.repo);
-    }
   } catch (err) {
     error.value = err.message;
     renderedHtml.value = '';
   } finally {
     loading.value = false;
+  }
+
+  // loading 設為 false 後，等 Vue re-render（v-else 才會掛載 .markdown-body）
+  // 再對 markdownBodyRef 執行 embed placeholder 的非同步 patch
+  if (renderedHtml.value) {
+    await nextTick();
+    if (markdownBodyRef.value) {
+      patchEmbeds(markdownBodyRef.value, props.repo);
+    }
   }
 };
 
@@ -195,7 +198,7 @@ watch(() => [props.path, props.repo], ([newPath]) => {
         </table>
       </div>
 
-      <div class="markdown-body" v-html="renderedHtml" @click="handleLinkClick"></div>
+      <div ref="markdownBodyRef" class="markdown-body" v-html="renderedHtml" @click="handleLinkClick"></div>
     </div>
   </div>
 </template>
