@@ -28,30 +28,37 @@ npm install
 
 ### 2. 啟動服務
 
-您需要開啟兩個終端機視窗，分別啟動後端與前端：
+我們提供了一鍵啟動的腳本，您可以選擇開發模式或正式使用模式：
 
-**啟動 Server：**
+#### 🛠️ 開發開發模式 (前後端分離，支援熱更新)
+在根目錄執行：
 ```bash
-cd server
-npm start
-```
-後端 API 預設運行於 `http://localhost:3000`。
-
-**啟動 Client：**
-```bash
-cd client
 npm run dev
 ```
-前端介面預設運行於 `http://localhost:5173`。
+此模式會同時啟動：
+- 前端：`http://localhost:5173` (Vite dev server)
+- 後端：`http://localhost:3000`
+
+#### 📦 正式使用模式 (合併部署，只需開一個 Port)
+此模式會先編譯前端檔案，並由後端 Server 統一處理所有請求：
+```bash
+npm start
+```
+啟動後，請訪問：`http://localhost:3000`
 
 ## 📂 如何指定 Repository
 
 Tiny Wiki 預設會讀取專案根目錄下的 `repository` 資料夾作為檔案庫。如果您想指定自定義的 Markdown 存放路徑，可以透過環境變數 `REPO_PATH` 進行設定。
 
-### 在啟動後端時指定路徑：
+### 在啟動時指定路徑：
+
+如果您是在根目錄啟動：
 
 ```bash
-# macOS / Linux
+# macOS / Linux (開發模式)
+REPO_PATH=/path/to/your/markdown/folder npm run dev
+
+# macOS / Linux (正式模式)
 REPO_PATH=/path/to/your/markdown/folder npm start
 
 # Windows (PowerShell)
@@ -59,6 +66,18 @@ $env:REPO_PATH="/your/absolute/path"; npm start
 ```
 
 *注意：指定的路徑必須為絕對路徑，或者相對於 `server/index.js` 的相對路徑。*
+
+### ⚙️ 自定義環境變數
+
+您可以透過環境變數來調整啟動參數（路徑、連接埠等）：
+
+```bash
+# macOS / Linux
+PORT=8080 REPO_PATH=/your/path npm start
+
+# Windows (PowerShell)
+$env:PORT=8080; $env:REPO_PATH="/your/path"; npm start
+```
 
 ## ⌨️ 快捷鍵
 

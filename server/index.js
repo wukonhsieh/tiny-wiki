@@ -9,9 +9,22 @@ const fs = require('fs').promises;
 app.use(cors());
 app.use(express.json());
 
-const REPO_PATH = process.env.REPO_PATH || path.join(__dirname, '../repository');
+const rawRepoPaths = process.env.REPO_PATH || path.join(__dirname, '../repository');
+const REPO_PATHS = rawRepoPaths.split(',').map(p => path.resolve(p.trim()));
 
-async function getTree(dirPath, relativePath = '') {
+// 啟動時驗證路徑有效性
+(async () => {
+  for (const repo of REPO_PATHS) {
+    try {
+      await fs.access(repo);
+      console.log(`[INFO] Repository loaded: ${repo}`);
+    } catch (e) {
+      console.warn(`[WARNING] Repository path not found or inaccessible: ${repo}`);
+    }
+  }
+})();
+
+async function getTree(dirPath, relativePath = '', repoIndex = 0) {
   const name = path.basename(dirPath) || 'root';
   const stats = await fs.stat(dirPath);
   
@@ -27,21 +40,23 @@ async function getTree(dirPath, relativePath = '') {
       const childStats = await fs.stat(fullPath);
       
       if (childStats.isDirectory()) {
-        const subtree = await getTree(fullPath, childRelativePath);
+        const subtree = await getTree(fullPath, childRelativePath, repoIndex);
         if (subtree) children.push(subtree);
       } else if (file.endsWith('.md')) {
         children.push({
           name: file,
           type: 'file',
-          path: childRelativePath
+          path: childRelativePath,
+          repo: repoIndex
         });
       }
     }
     
     return {
-      name: relativePath === '' ? 'root' : name,
+      name: name,
       type: 'directory',
       path: relativePath === '' ? '/' : relativePath,
+      repo: repoIndex,
       children
     };
   }
@@ -49,20 +64,42 @@ async function getTree(dirPath, relativePath = '') {
 }
 
 // 輔助函數：驗證路徑安全性
-function resolveSafePath(reqPath) {
+function resolveSafePath(reqPath, repoIndex = 0) {
   if (!reqPath) return null;
-  // 使用 path.resolve 取得絕對路徑，並比對是否在 REPO_PATH 內
-  const fullPath = path.resolve(REPO_PATH, reqPath);
-  if (!fullPath.startsWith(REPO_PATH)) {
-    return null;
+  
+  const index = parseInt(repoIndex, 10);
+  if (isNaN(index) || index < 0 || index >= REPO_PATHS.length) return null;
+  
+  const repo = REPO_PATHS[index];
+  const fullPath = path.resolve(repo, reqPath);
+  if (fullPath.startsWith(repo)) {
+    return fullPath;
   }
-  return fullPath;
+  return null;
 }
 
 app.get('/api/tree', async (req, res) => {
   try {
-    const tree = await getTree(REPO_PATH);
-    res.json(tree);
+    if (REPO_PATHS.length === 1) {
+      const tree = await getTree(REPO_PATHS[0], '', 0);
+      res.json(tree);
+    } else {
+      const children = [];
+      for (let i = 0; i < REPO_PATHS.length; i++) {
+        const repoPath = REPO_PATHS[i];
+        // 多 Repo 模式下，每個 Repo 的根節點相對路徑從空字串開始，避免前綴衝突
+        const subtree = await getTree(repoPath, '', i);
+        if (subtree) children.push(subtree);
+      }
+      
+      res.json({
+        name: 'root',
+        type: 'directory',
+        path: '/',
+        repo: -1, // 虛擬根節點不屬於任何 repo
+        children
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -70,7 +107,7 @@ app.get('/api/tree', async (req, res) => {
 
 // GET /api/file - 讀取內容
 app.get('/api/file', async (req, res) => {
-  const fullPath = resolveSafePath(req.query.path);
+  const fullPath = resolveSafePath(req.query.path, req.query.repo);
   if (!fullPath) return res.status(400).json({ error: "Invalid path" });
 
   try {
@@ -82,10 +119,24 @@ app.get('/api/file', async (req, res) => {
   }
 });
 
+// GET /api/raw - 以正確 MIME type 回傳二進位或文字資源（供圖片、影片等 embed 使用）
+app.get('/api/raw', async (req, res) => {
+  const fullPath = resolveSafePath(req.query.path, req.query.repo);
+  if (!fullPath) return res.status(400).json({ error: "Invalid path" });
+
+  try {
+    await fs.access(fullPath);
+    res.sendFile(fullPath);
+  } catch (error) {
+    if (error.code === 'ENOENT') return res.status(404).json({ error: "File not found" });
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST /api/file - 儲存內容
 app.post('/api/file', async (req, res) => {
-  const { path: reqPath, content } = req.body;
-  const fullPath = resolveSafePath(reqPath);
+  const { path: reqPath, content, repo } = req.body;
+  const fullPath = resolveSafePath(reqPath, repo);
   if (!fullPath) return res.status(400).json({ error: "Invalid path" });
 
   try {
@@ -99,7 +150,7 @@ app.post('/api/file', async (req, res) => {
 
 // DELETE /api/file - 刪除項目
 app.delete('/api/file', async (req, res) => {
-  const fullPath = resolveSafePath(req.query.path);
+  const fullPath = resolveSafePath(req.query.path, req.query.repo);
   if (!fullPath) return res.status(400).json({ error: "Invalid path" });
 
   try {
@@ -117,8 +168,8 @@ app.delete('/api/file', async (req, res) => {
 
 // POST /api/directory - 建立資料夾
 app.post('/api/directory', async (req, res) => {
-  const { path: reqPath } = req.body;
-  const fullPath = resolveSafePath(reqPath);
+  const { path: reqPath, repo } = req.body;
+  const fullPath = resolveSafePath(reqPath, repo);
   if (!fullPath) return res.status(400).json({ error: "Invalid path" });
 
   try {
@@ -135,50 +186,98 @@ app.get('/api/hello', (req, res) => {
 
 // GET /api/resolve - 搜尋 Wikilink 對應的路徑
 app.get('/api/resolve', async (req, res) => {
-  const { name } = req.query;
+  const { name, repo } = req.query;
   if (!name) return res.status(400).json({ error: "Missing name" });
 
   try {
-    // 如果包含 '/'，直接嘗試解析路徑
+    const repoIndex = repo !== undefined ? parseInt(repo, 10) : null;
+
+    // 1. 如果包含 '/'，嘗試直接路徑解析
     if (name.includes('/')) {
-      const targetPath = name.endsWith('.md') ? name : `${name}.md`;
-      const fullPath = resolveSafePath(targetPath);
-      if (fullPath) {
-        try {
-          await fs.access(fullPath);
-          return res.json({ path: targetPath });
-        } catch (e) {
-          // 繼續往下走搜尋邏輯，或者報錯
+      // 非 .md 檔案（圖片、影片等）優先嘗試原始路徑；.md 或無副檔名則嘗試加 .md
+      const targetPaths = [];
+      if (name.endsWith('.md')) {
+        targetPaths.push(name);
+      } else {
+        targetPaths.push(name);           // 先嘗試完整路徑（圖片、影片等）
+        targetPaths.push(`${name}.md`);   // 再嘗試加 .md（無副檔名的 note 連結）
+      }
+
+      // 相容性處理：如果提供了 repo 且路徑開頭剛好是該 repo 的名稱，嘗試去掉前綴
+      if (repoIndex !== null && repoIndex >= 0 && repoIndex < REPO_PATHS.length) {
+        const repoBasename = path.basename(REPO_PATHS[repoIndex]);
+        const segments = name.split('/');
+        if (segments[0] === repoBasename) {
+          const stripped = segments.slice(1).join('/');
+          if (!stripped.endsWith('.md')) targetPaths.push(stripped);
+          targetPaths.push(stripped.endsWith('.md') ? stripped : `${stripped}.md`);
+        }
+      }
+
+      for (const tPath of targetPaths) {
+        // 如果有指定 repo，優先在該 repo 找；否則在第一個找
+        const fullPath = resolveSafePath(tPath, repoIndex !== null ? repoIndex : 0);
+        if (fullPath) {
+          try {
+            await fs.access(fullPath);
+            return res.json({ path: tPath, repo: repoIndex !== null ? repoIndex : 0 });
+          } catch (e) {
+            // 繼續嘗試下一個可能
+          }
         }
       }
     }
 
-    // 遞迴搜尋符合檔名的第一個檔案
-    async function findFile(dir) {
+    // 2. 遞迴搜尋符合檔名的第一個檔案
+    async function findFile(dir, currentRelativePath, repoIdx) {
       const files = await fs.readdir(dir);
       for (const file of files) {
         if (file.startsWith('.') || file === 'node_modules') continue;
         const fullPath = path.join(dir, file);
+        const childRelativePath = path.join(currentRelativePath, file);
         const stats = await fs.stat(fullPath);
         if (stats.isDirectory()) {
-          const found = await findFile(fullPath);
+          const found = await findFile(fullPath, childRelativePath, repoIdx);
           if (found) return found;
         } else if (file === name || file === `${name}.md`) {
-          return path.relative(REPO_PATH, fullPath);
+          return { path: childRelativePath, repo: repoIdx };
         }
       }
       return null;
     }
 
-    const foundPath = await findFile(REPO_PATH);
-    if (foundPath) {
-      res.json({ path: foundPath });
+    let result = null;
+    // 優先搜尋指定的 repo
+    if (repoIndex !== null && repoIndex >= 0 && repoIndex < REPO_PATHS.length) {
+      result = await findFile(REPO_PATHS[repoIndex], '', repoIndex);
+    }
+    
+    // 若沒找到，再全域搜尋其他 repo
+    if (!result) {
+      for (let i = 0; i < REPO_PATHS.length; i++) {
+        if (i === repoIndex) continue;
+        result = await findFile(REPO_PATHS[i], '', i);
+        if (result) break;
+      }
+    }
+
+    if (result) {
+      res.json(result);
     } else {
       res.status(404).json({ error: "File not found" });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// 靜態檔案服務 (Production mode)
+const clientDistPath = path.resolve(__dirname, '../client/dist');
+app.use(express.static(clientDistPath));
+
+// 所有其他非 API 且未符合靜態檔案的請求，一律回傳 client/dist/index.html 以支援 SPA 路由
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
 app.listen(PORT, () => {

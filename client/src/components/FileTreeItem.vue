@@ -9,6 +9,10 @@ const props = defineProps({
   selectedPath: {
     type: String,
     default: ''
+  },
+  selectedRepo: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -24,7 +28,7 @@ const toggle = () => {
 
 const selectItem = () => {
   if (props.item.type === 'file') {
-    emit('select', props.item.path);
+    emit('select', props.item.path, props.item.repo);
   } else {
     toggle();
   }
@@ -33,15 +37,13 @@ const selectItem = () => {
 const handleDelete = (e) => {
   e.stopPropagation();
   if (confirm(`Are you sure you want to delete ${props.item.name}?`)) {
-    emit('delete', props.item.path);
+    emit('delete', props.item.path, props.item.repo);
   }
 };
 
 const onLabelContextMenu = (e) => {
   e.stopPropagation();
-  if (props.item.type === 'directory') {
-    emit('contextmenu', { e, path: props.item.path });
-  }
+  emit('contextmenu', { e, path: props.item.path, repo: props.item.repo, type: props.item.type });
 };
 </script>
 
@@ -50,7 +52,7 @@ const onLabelContextMenu = (e) => {
     <div 
       class="item-label" 
       :class="{ 
-        'is-active': selectedPath === item.path,
+        'is-active': selectedPath === item.path && selectedRepo === item.repo,
         'is-directory': item.type === 'directory' 
       }"
       @click="selectItem"
@@ -87,8 +89,9 @@ const onLabelContextMenu = (e) => {
         :key="child.path" 
         :item="child"
         :selected-path="selectedPath"
-        @select="(path) => $emit('select', path)"
-        @delete="(path) => $emit('delete', path)"
+        :selected-repo="selectedRepo"
+        @select="(path, repo) => $emit('select', path, repo)"
+        @delete="(path, repo) => $emit('delete', path, repo)"
         @contextmenu="(payload) => $emit('contextmenu', payload)"
       />
     </div>

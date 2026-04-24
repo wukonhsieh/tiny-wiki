@@ -1,12 +1,17 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { renderMarkdown } from '../utils/markdown';
+import { patchEmbeds } from '../utils/embedPatcher';
 import 'highlight.js/styles/github.css';
 
 const props = defineProps({
   path: {
     type: String,
     required: true
+  },
+  repo: {
+    type: Number,
+    default: 0
   }
 });
 
@@ -22,10 +27,10 @@ const handleLinkClick = async (event) => {
   if (isWikilink) {
     event.preventDefault();
     try {
-      const res = await fetch(`/api/resolve?name=${encodeURIComponent(href)}`);
+      const res = await fetch(`/api/resolve?name=${encodeURIComponent(href)}&repo=${props.repo}`);
       if (res.ok) {
         const data = await res.json();
-        emit('select', data.path);
+        emit('select', data.path, data.repo !== undefined ? data.repo : props.repo);
       } else {
         console.warn('Wikilink resolution failed:', href);
         // 如果找不到，可以考慮給個視覺提示，但目前先不跳 alert 以免干擾
@@ -46,7 +51,7 @@ const handleLinkClick = async (event) => {
       cleanPath = `${currentDir}/${cleanPath}`;
     }
     
-    emit('select', cleanPath);
+    emit('select', cleanPath, props.repo);
   }
 };
 
@@ -58,6 +63,7 @@ const loading = ref(false);
 const error = ref(null);
 const frontmatter = ref({});
 const rawBodyContent = ref('');
+const markdownBodyRef = ref(null);
 
 const removeTag = async (key, index) => {
   if (!frontmatter.value[key] || !Array.isArray(frontmatter.value[key])) return;
@@ -75,7 +81,7 @@ const removeTag = async (key, index) => {
     const res = await fetch('/api/file', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path: props.path, content: fullContent })
+      body: JSON.stringify({ path: props.path, content: fullContent, repo: props.repo })
     });
     if (!res.ok) throw new Error('Failed to update frontmatter');
   } catch (err) {
@@ -91,7 +97,7 @@ const fetchFileContent = async (filePath) => {
   error.value = null;
   
   try {
-    const response = await fetch(`/api/file?path=${encodeURIComponent(filePath)}`);
+    const response = await fetch(`/api/file?path=${encodeURIComponent(filePath)}&repo=${props.repo}`);
     if (!response.ok) throw new Error('File not found or server error');
     
     const data = await response.json();
@@ -139,10 +145,19 @@ const fetchFileContent = async (filePath) => {
   } finally {
     loading.value = false;
   }
+
+  // loading 設為 false 後，等 Vue re-render（v-else 才會掛載 .markdown-body）
+  // 再對 markdownBodyRef 執行 embed placeholder 的非同步 patch
+  if (renderedHtml.value) {
+    await nextTick();
+    if (markdownBodyRef.value) {
+      patchEmbeds(markdownBodyRef.value, props.repo);
+    }
+  }
 };
 
 
-watch(() => props.path, (newPath) => {
+watch(() => [props.path, props.repo], ([newPath]) => {
   fetchFileContent(newPath);
 }, { immediate: true });
 
@@ -183,7 +198,7 @@ watch(() => props.path, (newPath) => {
         </table>
       </div>
 
-      <div class="markdown-body" v-html="renderedHtml" @click="handleLinkClick"></div>
+      <div ref="markdownBodyRef" class="markdown-body" v-html="renderedHtml" @click="handleLinkClick"></div>
     </div>
   </div>
 </template>
@@ -331,6 +346,74 @@ watch(() => props.path, (newPath) => {
   padding: 0;
   background-color: transparent;
   font-size: 100%;
+}
+
+/* ── Embed Styles ─────────────────────────────────────────────────────────── */
+
+/* 圖片 embed */
+:deep(.embed-image) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1em 0;
+  border-radius: 6px;
+}
+
+/* 影片 embed */
+:deep(.embed-video) {
+  display: block;
+  max-width: 100%;
+  margin: 1em 0;
+  border-radius: 6px;
+  background-color: #000;
+}
+
+/* Note heading callout embed */
+:deep(.embed-callout) {
+  display: block;
+  margin: 1em 0;
+  padding: 10px 16px;
+  border-left: 3px solid var(--accent);
+  background-color: var(--accent-bg);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.95rem;
+  color: var(--text-h);
+}
+
+/* 下載連結 embed（沿用 wikilink 顏色體系） */
+:deep(.embed-download) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #a67c52;
+  text-decoration: none;
+  border-bottom: 1px dashed #a67c52;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+:deep(.embed-download)::before {
+  content: '📎';
+  font-size: 0.9em;
+}
+
+:deep(.embed-download):hover {
+  background-color: var(--accent-bg);
+  border-bottom-style: solid;
+}
+
+/* Broken embed 佔位提示 */
+:deep(.embed-broken) {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: var(--code-bg);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  opacity: 0.6;
+  font-size: 0.85rem;
+  font-family: var(--mono);
+  margin: 2px 0;
 }
 
 </style>
