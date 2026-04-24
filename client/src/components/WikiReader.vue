@@ -2,6 +2,7 @@
 import { ref, watch, nextTick } from 'vue';
 import { renderMarkdown } from '../utils/markdown';
 import { patchEmbeds } from '../utils/embedPatcher';
+import { patchMermaid } from '../utils/mermaidPatcher';
 import 'highlight.js/styles/github.css';
 
 const props = defineProps({
@@ -152,6 +153,7 @@ const fetchFileContent = async (filePath) => {
     await nextTick();
     if (markdownBodyRef.value) {
       patchEmbeds(markdownBodyRef.value, props.repo);
+      patchMermaid(markdownBodyRef.value);
     }
   }
 };
@@ -414,6 +416,41 @@ watch(() => [props.path, props.repo], ([newPath]) => {
   font-size: 0.85rem;
   font-family: var(--mono);
   margin: 2px 0;
+}
+
+/* KaTeX 數學公式樣式 */
+:deep(.katex-display) {
+  display: block;
+  text-align: center;
+  margin: 1.2em 0;
+  overflow-x: auto;
+}
+
+/* Mermaid 圖表容器 */
+:deep(.mermaid-container) {
+  display: block;
+  overflow-x: auto;
+  margin: 1.2em 0;
+  text-align: center;
+}
+
+:deep(.mermaid-container svg) {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mermaid 錯誤提示 */
+:deep(.mermaid-error) {
+  display: block;
+  padding: 8px 12px;
+  background-color: var(--code-bg);
+  border: 1px dashed #e05c5c;
+  border-radius: 4px;
+  color: #c0392b;
+  font-size: 0.85rem;
+  font-family: var(--mono);
+  margin: 1em 0;
+  opacity: 0.85;
 }
 
 </style>
