@@ -128,3 +128,108 @@ welcome();
 *   **連結到同目錄檔案**：[連結到 Note 1](note1.md)
 *   **連結到子目錄檔案**：[連結到 Folder 1 內的 Note 2](folder1/note2.md)
 *   **使用相對路徑**：`[顯示名稱](路徑/檔名.md)`
+
+---
+
+## 12. 數學公式 (Math — KaTeX)
+
+Tiny Wiki 支援 [KaTeX](https://katex.org/) 數學公式語法，與 Obsidian 相容。
+
+### Inline 公式
+
+在文字中插入公式，使用單個 `$` 包住：
+
+愛因斯坦的質能等價公式 $E = mc^2$ 是物理學的基石。
+
+歐拉恆等式 $e^{i\pi} + 1 = 0$ 被譽為數學中最美麗的公式。
+
+二次方程的解為 $x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}$。
+
+### Block 公式
+
+獨立一行顯示，使用 `$$` 包住：
+
+$$
+\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}
+$$
+
+$$
+\sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}
+$$
+
+$$
+\mathbf{F} = m\mathbf{a} = \frac{d(m\mathbf{v})}{dt}
+$$
+
+---
+
+## 13. 流程圖與圖表 (Diagrams — Mermaid)
+
+Tiny Wiki 支援 [Mermaid](https://mermaid.js.org/) 繪圖語法，與 Obsidian 相容。使用 ` ```mermaid ` 開頭的程式碼區塊即可。
+
+### Flowchart（流程圖）
+
+```mermaid
+flowchart TD
+    A[開始] --> B{需求明確？}
+    B -- 是 --> C[開始規劃]
+    B -- 否 --> D[澄清需求]
+    D --> B
+    C --> E[執行開發]
+    E --> F[測試驗收]
+    F --> G[完成 ✓]
+```
+
+### Sequence Diagram（時序圖）
+
+```mermaid
+sequenceDiagram
+    participant 使用者
+    participant 前端
+    participant 後端
+
+    使用者->>前端: 點擊開啟筆記
+    前端->>後端: GET /api/file?path=note.md
+    後端-->>前端: 回傳檔案內容
+    前端-->>使用者: 渲染 Markdown 頁面
+```
+
+### Class Diagram（類別圖）
+
+```mermaid
+classDiagram
+    class WikiApp {
+        +String repo
+        +render()
+        +navigate()
+    }
+    class WikiReader {
+        +String path
+        +fetchContent()
+        +patchEmbeds()
+        +patchMermaid()
+    }
+    class WikiEditor {
+        +String rawContent
+        +save()
+        +preview()
+    }
+    WikiApp --> WikiReader
+    WikiApp --> WikiEditor
+```
+
+### ER Diagram（實體關係圖）
+
+```mermaid
+erDiagram
+    NOTE {
+        string path PK
+        string title
+        string content
+        date updatedAt
+    }
+    TAG {
+        string name PK
+    }
+    NOTE ||--o{ TAG : "has"
+```
