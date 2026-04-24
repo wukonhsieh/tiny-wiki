@@ -7,6 +7,10 @@ import 'katex/dist/katex.min.css';
 const md = new MarkdownIt({
   html: true,
   highlight: function (str, lang) {
+    // mermaid block：輸出 placeholder 供 mermaidPatcher post-process
+    if (lang === 'mermaid') {
+      return `<div class="mermaid-placeholder">${md.utils.escapeHtml(str)}</div>`;
+    }
     if (lang && hljs.getLanguage(lang)) {
       try {
         return '<pre class="hljs"><code>' +
