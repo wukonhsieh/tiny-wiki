@@ -61,6 +61,31 @@ describe('renderMarkdown - embed syntax ![[...]]', () => {
 
 });
 
+describe('renderMarkdown - KaTeX math rendering', () => {
+
+  // Math AC-1: inline math $...$ 輸出含 katex class
+  it('Math-AC-1: $E=mc^2$ inline renders with katex class', () => {
+    const html = renderMarkdown('inline: $E=mc^2$ end');
+    expect(html).toContain('katex');
+    expect(html).not.toContain('$E=mc^2$');
+  });
+
+  // Math AC-2: block math $$...$$ 輸出含 katex-display
+  it('Math-AC-2: $$\\int$$ block renders with katex-display', () => {
+    const html = renderMarkdown('$$\n\\int_0^\\infty f(x)\\,dx\n$$');
+    expect(html).toContain('katex-display');
+  });
+
+  // Math AC-3: fenced code block 內的 $x^2$ 不被 KaTeX 處理
+  it('Math-AC-3: $x^2$ inside fenced code block is NOT processed by KaTeX', () => {
+    const input = '```\n$x^2$\n```';
+    const html = renderMarkdown(input);
+    expect(html).toContain('$x^2$');
+    expect(html).not.toContain('katex');
+  });
+
+});
+
 describe('renderMarkdown - wikilink regression', () => {
 
   it('regression: [[target]] still renders as wikilink', () => {

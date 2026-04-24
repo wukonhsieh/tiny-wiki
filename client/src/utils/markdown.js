@@ -1,5 +1,8 @@
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
+import tm from 'markdown-it-texmath';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 
 const md = new MarkdownIt({
   html: true,
@@ -14,6 +17,9 @@ const md = new MarkdownIt({
     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
   }
 });
+
+// 整合 KaTeX 數學公式渲染（支援 $...$ inline 與 $$...$$ block）
+md.use(tm, { engine: katex, delimiters: 'dollars', katexOptions: { throwOnError: false } });
 
 // 支援的圖片與影片副檔名
 const IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp']);
