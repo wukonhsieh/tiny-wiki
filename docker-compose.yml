@@ -4,7 +4,7 @@ services:
     ports:
       - "3101:3000"
     volumes:
-      - /Users/wukon/git/github/llm-wiki/wiki:/vault:ro
+      - /Users/wukon/git/github/llm-wiki/wiki:/vault:rw
     restart: unless-stopped
 
   wiki-2:
@@ -12,6 +12,6 @@ services:
     ports:
       - "3102:3000"
     volumes:
-      - /Users/wukon/git/github/nunox-workspace/wiki:/vault:ro
+      - /Users/wukon/git/github/nunox-workspace/wiki:/vault:rw
     restart: unless-stopped
 
