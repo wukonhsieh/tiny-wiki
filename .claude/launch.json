@@ -4,7 +4,7 @@
     {
       "name": "tiny-wiki",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["start"],
+      "runtimeArgs": ["run", "server"],
       "port": 3000
     }
   ]
