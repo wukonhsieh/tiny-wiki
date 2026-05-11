@@ -5,6 +5,7 @@ const PORT = process.env.PORT || 3000;
 
 const path = require('path');
 const fs = require('fs').promises;
+const multer = require('multer');
 
 app.use(cors());
 app.use(express.json());
@@ -182,6 +183,47 @@ app.post('/api/directory', async (req, res) => {
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: "hello from server" });
+});
+
+// POST /api/upload - 上傳附件到指定資料夾的 attachments/ 子目錄
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Missing file' });
+
+  const { targetDir, repo } = req.body;
+  const resolvedTarget = resolveSafePath(targetDir, repo ?? 0);
+  if (!resolvedTarget) return res.status(400).json({ error: 'Invalid targetDir' });
+
+  const attachmentsDir = path.join(resolvedTarget, 'attachments');
+
+  try {
+    await fs.mkdir(attachmentsDir, { recursive: true });
+
+    const ext = path.extname(req.file.originalname);
+    const base = path.basename(req.file.originalname, ext);
+    let filename = req.file.originalname;
+
+    for (let i = 1; i <= 999; i++) {
+      try {
+        await fs.access(path.join(attachmentsDir, filename));
+        filename = `${base}_${i}${ext}`;
+      } catch {
+        break;
+      }
+    }
+
+    await fs.writeFile(path.join(attachmentsDir, filename), req.file.buffer);
+
+    const relativePath = path.posix.join(
+      targetDir.replace(/\\/g, '/'),
+      'attachments',
+      filename
+    );
+    res.json({ filename, path: relativePath });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // GET /api/resolve - 搜尋 Wikilink 對應的路徑
