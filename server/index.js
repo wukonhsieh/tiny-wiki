@@ -318,7 +318,8 @@ const clientDistPath = path.resolve(__dirname, '../client/dist');
 app.use(express.static(clientDistPath));
 
 // 所有其他非 API 且未符合靜態檔案的請求，一律回傳 client/dist/index.html 以支援 SPA 路由
-app.get(/^\/(?!api).*/, (req, res) => {
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
   res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 

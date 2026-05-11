@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { renderMarkdown } from '../utils/markdown';
 import { patchEmbeds } from '../utils/embedPatcher';
 import { patchMermaid } from '../utils/mermaidPatcher';
+import { calcDropLine } from '../utils/dropLine';
 import 'highlight.js/styles/github.css';
 
 const props = defineProps({
@@ -24,6 +25,9 @@ const loading = ref(true);
 const saving = ref(false);
 const error = ref(null);
 const previewBodyRef = ref(null);
+const textareaRef = ref(null);
+const isDragging = ref(false);
+const dropTargetLine = ref(null);
 
 const renderedHtml = computed(() => {
   let bodyStr = rawContent.value;
@@ -88,6 +92,48 @@ const handleSave = async () => {
   }
 };
 
+const dropIndicatorTop = computed(() => {
+  if (!textareaRef.value || dropTargetLine.value === null) return 0;
+  const ta = textareaRef.value;
+  const style = getComputedStyle(ta);
+  const lineHeight = parseFloat(style.lineHeight);
+  const paddingTop = parseFloat(style.paddingTop);
+  return paddingTop + (dropTargetLine.value + 1) * lineHeight - ta.scrollTop;
+});
+
+function onDragEnter(e) {
+  if (Array.from(e.dataTransfer.types).includes('Files')) {
+    isDragging.value = true;
+  }
+}
+
+function onDragOver(e) {
+  if (!Array.from(e.dataTransfer.types).includes('Files')) return;
+  e.preventDefault();
+  isDragging.value = true;
+  const ta = textareaRef.value;
+  if (!ta) return;
+  const style = getComputedStyle(ta);
+  const lineHeight = parseFloat(style.lineHeight);
+  const paddingTop = parseFloat(style.paddingTop);
+  const rect = ta.getBoundingClientRect();
+  const lineCount = rawContent.value.split('\n').length;
+  dropTargetLine.value = calcDropLine(e.clientY, rect, ta.scrollTop, paddingTop, lineHeight, lineCount);
+}
+
+function onDragLeave() {
+  isDragging.value = false;
+  dropTargetLine.value = null;
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  console.log('[drop] line:', dropTargetLine.value, 'file:', file?.name);
+  isDragging.value = false;
+  dropTargetLine.value = null;
+}
+
 const handleKeyboard = (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault();
@@ -144,10 +190,22 @@ onUnmounted(() => {
     <div v-if="loading" class="state-msg">Preparing editor...</div>
     <div v-else class="editor-main">
       <div class="editor-pane">
-        <textarea 
-          v-model="rawContent" 
-          placeholder="Write markdown here..."
-        ></textarea>
+        <div class="textarea-wrapper">
+          <textarea
+            ref="textareaRef"
+            v-model="rawContent"
+            placeholder="Write markdown here..."
+            @dragenter="onDragEnter"
+            @dragover="onDragOver"
+            @dragleave="onDragLeave"
+            @drop="onDrop"
+          ></textarea>
+          <div
+            v-if="isDragging && dropTargetLine !== null"
+            class="drop-indicator"
+            :style="{ top: dropIndicatorTop + 'px' }"
+          ></div>
+        </div>
       </div>
       <div class="preview-pane">
         <div ref="previewBodyRef" class="markdown-body" v-html="renderedHtml"></div>
@@ -295,6 +353,24 @@ onUnmounted(() => {
 
 .editor-pane {
   border-right: 1px solid var(--border);
+}
+
+.textarea-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  pointer-events: none;
+  z-index: 10;
+  border-radius: 1px;
+  box-shadow: 0 0 4px var(--accent);
 }
 
 textarea {
