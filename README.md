@@ -79,6 +79,59 @@ PORT=8080 REPO_PATH=/your/path npm start
 $env:PORT=8080; $env:REPO_PATH="/your/path"; npm start
 ```
 
+## 🐳 Docker 部署
+
+如果您想同時運行多個 Tiny Wiki 實例，分別對應不同的 Vault（知識庫），可以使用 Docker 方式部署。
+
+### 1. 建立 Image
+
+在專案根目錄執行：
+
+```bash
+docker build -t tiny-wiki .
+```
+
+### 2. 設定 docker-compose.yml
+
+編輯 `docker-compose.yml`，將每個 service 的 volume 路徑換成您的實際 Vault 路徑：
+
+```yaml
+services:
+  wiki-1:
+    image: tiny-wiki
+    ports:
+      - "3101:3000"      # 對外 Port:容器內 Port
+    volumes:
+      - /your/vault-1:/vault:ro    # 掛載 Vault，:ro 為唯讀
+    restart: unless-stopped
+
+  wiki-2:
+    image: tiny-wiki
+    ports:
+      - "3102:3000"
+    volumes:
+      - /your/vault-2:/vault:ro
+    restart: unless-stopped
+```
+
+> 如需在 Wiki 介面中編輯儲存檔案，請將 `:ro` 拿掉改為讀寫掛載。
+
+### 3. 啟動所有實例
+
+```bash
+docker compose up -d
+```
+
+啟動後：
+- `http://localhost:3101` → vault-1
+- `http://localhost:3102` → vault-2
+
+每個 Port 對應獨立的 Vault，互相隔離、不會有存取衝突。
+
+要新增更多實例，複製一個 service block 並換上新的 Port 與 Vault 路徑即可。
+
+---
+
 ## ⌨️ 快捷鍵
 
 - **Ctrl + S** (Windows) / **Cmd + S** (Mac)：在編輯模式下快速儲存當前文件。

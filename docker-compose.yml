@@ -1,0 +1,17 @@
+services:
+  wiki-1:
+    image: tiny-wiki
+    ports:
+      - "3101:3000"
+    volumes:
+      - /Users/wukon/git/github/llm-wiki/wiki:/vault:ro
+    restart: unless-stopped
+
+  wiki-2:
+    image: tiny-wiki
+    ports:
+      - "3102:3000"
+    volumes:
+      - /Users/wukon/git/github/nunox-workspace/wiki:/vault:ro
+    restart: unless-stopped
+
