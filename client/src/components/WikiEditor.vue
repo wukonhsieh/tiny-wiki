@@ -4,6 +4,7 @@ import { renderMarkdown } from '../utils/markdown';
 import { patchEmbeds } from '../utils/embedPatcher';
 import { patchMermaid } from '../utils/mermaidPatcher';
 import { calcDropLine } from '../utils/dropLine';
+import { buildMarkdownLine, computeInsertAt } from '../utils/uploadHelper';
 import 'highlight.js/styles/github.css';
 
 const props = defineProps({
@@ -28,6 +29,7 @@ const previewBodyRef = ref(null);
 const textareaRef = ref(null);
 const isDragging = ref(false);
 const dropTargetLine = ref(null);
+const isUploading = ref(false);
 
 const renderedHtml = computed(() => {
   let bodyStr = rawContent.value;
@@ -126,12 +128,42 @@ function onDragLeave() {
   dropTargetLine.value = null;
 }
 
-function onDrop(e) {
+async function onDrop(e) {
   e.preventDefault();
+  if (isUploading.value) return;
+
   const file = e.dataTransfer.files[0];
-  console.log('[drop] line:', dropTargetLine.value, 'file:', file?.name);
+  const targetLine = dropTargetLine.value;
   isDragging.value = false;
   dropTargetLine.value = null;
+
+  if (!file) return;
+
+  const targetDir = props.path.includes('/')
+    ? props.path.substring(0, props.path.lastIndexOf('/'))
+    : '.';
+
+  isUploading.value = true;
+  try {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('targetDir', targetDir);
+    form.append('repo', String(props.repo));
+
+    const res = await fetch('/api/upload', { method: 'POST', body: form });
+    if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+    const { filename, path: vaultPath } = await res.json();
+
+    const markdownLine = buildMarkdownLine(file.type, filename, vaultPath, props.repo);
+    const lines = rawContent.value.split('\n');
+    const insertAt = computeInsertAt(targetLine, lines.length);
+    lines.splice(insertAt, 0, markdownLine);
+    rawContent.value = lines.join('\n');
+  } catch (err) {
+    alert('Upload error: ' + err.message);
+  } finally {
+    isUploading.value = false;
+  }
 }
 
 const handleKeyboard = (e) => {
@@ -205,6 +237,7 @@ onUnmounted(() => {
             class="drop-indicator"
             :style="{ top: dropIndicatorTop + 'px' }"
           ></div>
+          <div v-if="isUploading" class="upload-overlay">Uploading...</div>
         </div>
       </div>
       <div class="preview-pane">
@@ -371,6 +404,22 @@ onUnmounted(() => {
   z-index: 10;
   border-radius: 1px;
   box-shadow: 0 0 4px var(--accent);
+}
+
+.upload-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  pointer-events: all;
+  z-index: 20;
+  border-radius: 2px;
 }
 
 textarea {
